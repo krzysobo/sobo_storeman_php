@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. .env
+. ./.env
+
 
 PORT_DEFAULT=8080
 

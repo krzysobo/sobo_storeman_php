@@ -22,8 +22,8 @@ class JwtHelper
         // TOKEN_SECRET and TOKEN_ENC_KEY - generated with genkeys.php and stored into .env outside of git.
         // TOKEN_ENC_KEY - random 256-bit key from Key::createNewRandomKey()->saveToAsciiSafeString()
         return new self(
-            secret: $_ENV["TOKEN_SECRET"],
-            encKey: $_ENV["TOKEN_ENC_KEY"],
+            secret: getenv("TOKEN_SECRET"),
+            encKey: getenv("TOKEN_ENC_KEY"),
             payloadKey: $payloadKey);
     }
 
