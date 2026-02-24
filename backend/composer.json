@@ -1,0 +1,28 @@
+{
+    "name": "krzysobo/sobo_storeman",
+    "description": "storage manager for AWS and other solutions",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "App\\Middleware\\": "src/middleware/",
+            "App\\Http\\": "src/http/",
+            "App\\Helper\\": "src/helper/"
+        },
+        "files": []
+    },
+    "authors": [
+        {
+            "name": "Krzysztof Sobolewski",
+            "email": "krzysztof.sobolewski@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "^4.15",
+        "slim/psr7": "^1.8",
+        "aws/aws-sdk-php": "^3.370",
+        "firebase/php-jwt": "^7.0",
+        "defuse/php-encryption": "^2.4"
+    }
+}
