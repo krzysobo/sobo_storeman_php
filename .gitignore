@@ -1,6 +1,7 @@
 # ====== PHP and Slim Framework- specific =======
 
-/vendor/*
+vendor/*
+backend/vendor/*
 /logs/*
 
 .env
