@@ -25,6 +25,16 @@ class AwsHelper
         return $sts;
     }
 
+    public static function getS3ClientWithDecodedTokenCredentials($creds)
+    {
+        return self::getS3ClientWithCredentials(
+            $creds['payload']['region'],
+            $creds['payload']['key'],
+            $creds['payload']['secret'],
+            $creds['payload']['token']
+        );
+    }
+
     /**
      *
      * @param string $region
@@ -106,9 +116,31 @@ class AwsHelper
         ];
 
         $jwtHelper = self::getJwtHelperForAws();
-        $token = $jwtHelper->createToken($creds);
+        $token     = $jwtHelper->createToken($creds);
 
         return $token;
+    }
+
+    /**
+     * Summary of getAwsCredentialsFromToken
+     * @param string $token
+     * @throws RuntimeException
+     * @return array{exp: mixed, iat: mixed|null}
+     */
+    public static function getAwsCredentialsFromToken(string $token): array
+    {
+        $jwtHelper = self::getJwtHelperForAws();
+
+        $decodedToken = $jwtHelper->getDecryptedTokenData($token);
+        if (($decodedToken === null) || (empty($decodedToken))) {
+            throw new RuntimeException('Incorrect JWT token - AWS credentials not found.');
+        }
+
+        if (time() > $decodedToken['exp']) {
+            throw new RuntimeException('JWT Token with AWS credentials has expired');
+        }
+
+        return $decodedToken;
     }
 
     /**
@@ -149,24 +181,15 @@ class AwsHelper
      */
     public static function getS3ClientWithCredentialsFromToken(string $token): S3Client
     {
-        $jwtHelper = self::getJwtHelperForAws();
-
-        $decodedToken = $jwtHelper->getDecryptedTokenData($token);
-        if (($decodedToken === null) || (empty($decodedToken))) {
-            throw new RuntimeException('Incorrect JWT token - AWS credentials not found.');
-        }
-
-        if (time() > $decodedToken['exp']) {
-            throw new RuntimeException('JWT Token with AWS credentials has expired');
-        }
+        $decodedToken = self::getAwsCredentialsFromToken($token);
 
         return new S3Client([
             'region'      => $decodedToken['region'],
             'version'     => 'latest',
             'credentials' => [
-                'key'    => $decodedToken['aws_creds']['key'],
-                'secret' => $decodedToken['aws_creds']['secret'],
-                'token'  => $decodedToken['aws_creds']['token'],
+                'key'    => $decodedToken['payload']['key'],
+                'secret' => $decodedToken['payload']['secret'],
+                'token'  => $decodedToken['payload']['token'],
             ],
         ]);
 
@@ -176,11 +199,11 @@ class AwsHelper
      * Summary of getJwtHelperForAws
      * @return JwtHelper
      */
-    private static function getJwtHelperForAws(): JwtHelper {
+    private static function getJwtHelperForAws(): JwtHelper
+    {
         $jwtHelper = JwtHelper::instanceWithEnvSettings();
 
         return $jwtHelper;
     }
 
 }
-

@@ -9,30 +9,31 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 $app->get('/aws/s3/bucket/{bucket_name}', function (Request $request, Response $response, array $args) {
     $bucketName = $args['bucket_name'];
+    $resItems   = [];
+    $creds      = $request->getAttribute('aws_creds');
+    $s3Client   = AwsHelper::getS3ClientWithDecodedTokenCredentials($creds);
 
-    $s3Client = AwsHelper::getS3ClientWithCredentialsFromSession();
     $contents = $s3Client->listObjectsV2([
         'Bucket' => $bucketName,
     ]);
 
-    print_r($contents);
-    // echo "The contents of your bucket are: \n";
-    // foreach ($contents['Contents'] as $content) {
-    //     echo $content['Key'] . "\n";
-    // }
+    foreach ($contents['Contents'] as $item) {
+        $resItems[] = $item;
+    }
 
-    $data = ['bucket_name' => $bucketName, 'items' => $contents];
+    $data = ['bucket_name' => $bucketName, 'items' => $resItems];
 
     return ResponseHelper::jsonResponse($response, $data, 200);
 });
 
 $app->get('/aws/s3/bucket-list', function (Request $request, Response $response) {
-    echo "SESJA"; print_r($_SESSION);
-    $s3Client = AwsHelper::getS3ClientWithCredentialsFromSession();
-    $result   = $s3Client->listBuckets();
-    $buckets  = array_column($result['Buckets'], 'Name');
+    $creds    = $request->getAttribute('aws_creds');
+    $s3Client = AwsHelper::getS3ClientWithDecodedTokenCredentials($creds);
 
-    $data = ['buckets' => $buckets];
+    $result  = $s3Client->listBuckets();
+    $buckets = array_column($result['Buckets'], 'Name');
+    $data    = ['buckets' => $buckets];
+
     return ResponseHelper::jsonResponse($response, $data, 200);
 });
 
