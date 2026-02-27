@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helper;
 
 use Defuse\Crypto\Crypto;
@@ -10,7 +11,7 @@ use RuntimeException;
 class JwtHelper
 {
     public const string DEFAULT_PAYLOAD_KEY = 'payload';
-    public const string DEFAULT_ALGO        = 'HS256';
+    public const string DEFAULT_ALGO = 'HS256';
 
     /**
      * Summary of instanceWithEnvSettings
@@ -22,9 +23,10 @@ class JwtHelper
         // TOKEN_SECRET and TOKEN_ENC_KEY - generated with genkeys.php and stored into .env outside of git.
         // TOKEN_ENC_KEY - random 256-bit key from Key::createNewRandomKey()->saveToAsciiSafeString()
         return new self(
-            secret: getenv("TOKEN_SECRET"),
-            encKey: getenv("TOKEN_ENC_KEY"),
-            payloadKey: $payloadKey);
+            secret: getenv('TOKEN_SECRET'),
+            encKey: getenv('TOKEN_ENC_KEY'),
+            payloadKey: $payloadKey
+        );
     }
 
     /**
@@ -41,9 +43,8 @@ class JwtHelper
         private string $algo = self::DEFAULT_ALGO
     ) {
         if ((empty($secret)) || (empty($encKey))) {
-            throw new RuntimeException("TOKEN_SECRET and TOKEN_ENC_KEY may not be empty!");
+            throw new RuntimeException('TOKEN_SECRET and TOKEN_ENC_KEY may not be empty!');
         }
-
     }
 
     /**
@@ -62,11 +63,12 @@ class JwtHelper
     {
         $encryptedPart = Crypto::encrypt(
             plaintext: $partToEncrypt,
-            key: CryptoKey::loadFromAsciiSafeString($this->encKey));
+            key: CryptoKey::loadFromAsciiSafeString($this->encKey)
+        );
 
         $wholeTokenPayload = [
-            'iat'             => time(),
-            'exp'             => time() + $expiresIn,
+            'iat' => time(),
+            'exp' => time() + $expiresIn,
             $this->payloadKey => $encryptedPart,
         ];
 
@@ -83,7 +85,8 @@ class JwtHelper
         try {
             $decoded = JWT::decode(
                 jwt: $token,
-                keyOrKeyArray: new FbJwtKey(keyMaterial: $this->secret, algorithm: $this->algo));
+                keyOrKeyArray: new FbJwtKey(keyMaterial: $this->secret, algorithm: $this->algo)
+            );
 
             return (array) $decoded;
         } catch (\Exception $e) {
@@ -99,20 +102,21 @@ class JwtHelper
     public function getDecryptedTokenData(string $token): ?array
     {
         $decoded = $this->decodeToken($token);
-        if (! $decoded || empty($decoded[$this->payloadKey])) {
+        if (!$decoded || empty($decoded[$this->payloadKey])) {
             return null;
         }
 
         try {
             $decryptedRawPayload = Crypto::decrypt(
                 ciphertext: $decoded[$this->payloadKey],
-                key: CryptoKey::loadFromAsciiSafeString($this->encKey));
+                key: CryptoKey::loadFromAsciiSafeString($this->encKey)
+            );
 
             // $decryptedPayload = json_decode($decryptedJson, true);
 
             $res = [
-                'iat'             => $decoded['iat'],
-                'exp'             => $decoded['exp'],
+                'iat' => $decoded['iat'],
+                'exp' => $decoded['exp'],
                 $this->payloadKey => $decryptedRawPayload,
             ];
 

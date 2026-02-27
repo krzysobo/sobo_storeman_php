@@ -6,10 +6,10 @@ use App\Dto\AwsCredentials;
 use App\Http\ResponseHelper;
 use App\Middleware\AwsAuthMiddleware;
 use App\Middleware\ErrorMiddleware;
+use App\Settings\Settings;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
-use App\Settings\Settings;
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -23,17 +23,18 @@ $app->get('/', function (Request $request, Response $response, array $args) {
 });
 
 $app->get('/play', function (Request $request, Response $response, array $args) {
-    $awsc = new AwsCredentials("key", "secret", "token", expires: new DateTimeImmutable());
-    $awsc = $awsc->cloneWithLoginAt(new DateTimeImmutable("now"));
+    $awsc = new AwsCredentials('key', 'secret', 'token', expires: new DateTimeImmutable());
+    $awsc = $awsc->cloneWithLoginAt(new DateTimeImmutable('now'));
 
     $data = [
-        'app'            => 'Sobo Storeman',
-        'version'        => Settings::getAppVersion(),
-        'is_playground'  => true,
+        'app' => 'Sobo Storeman',
+        'version' => Settings::getAppVersion(),
+        'is_playground' => true,
         'php_version_id' => PHP_VERSION_ID,
-        'phpversion()'   => phpversion(),
-        'playground'     => [
-            'aws_creds' => $awsc->toArrayWithLogin()],
+        'phpversion()' => phpversion(),
+        'playground' => [
+            'aws_creds' => $awsc->toArrayWithLogin()
+        ],
     ];
 
     return ResponseHelper::jsonResponse($response, $data, 200);

@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Dto;
 
 use App\Settings\Settings;
+use App\Traits\CloneWithProps;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use JsonSerializable;
-use \App\Traits\CloneWithProps;
 
 final readonly class AwsCredentials implements JsonSerializable
 {
@@ -14,14 +15,15 @@ final readonly class AwsCredentials implements JsonSerializable
     public function __construct(
         public string $key,
         public string $secret,
-        public ?string $token = null, // null = permanent IAM keys
+        public ?string $token = null,  // null = permanent IAM keys
         public string $region = Settings::DEFAULT_REGION,
         public ?DateTimeImmutable $expires = null,
         public ?DateTimeImmutable $loggedInAt = null,
     ) {
         if (empty($key) || empty($secret)) {
             throw new InvalidArgumentException(
-                'AWS key (access Key Id) and secret (secret key) are required');
+                'AWS key (access Key Id) and secret (secret key) are required'
+            );
         }
     }
 
@@ -36,7 +38,7 @@ final readonly class AwsCredentials implements JsonSerializable
     public static function fromArray(array $data): self
     {
         $expires = null;
-        if (! empty($data['expires'])) {
+        if (!empty($data['expires'])) {
             $expires = is_int($data['expires'])
                 ? (new DateTimeImmutable())->setTimestamp($data['expires'])
                 : new DateTimeImmutable($data['expires']);
@@ -54,7 +56,7 @@ final readonly class AwsCredentials implements JsonSerializable
     public static function fromArgsList(
         string $key,
         string $secret,
-        ?string $token = null, // null = permanent IAM keys
+        ?string $token = null,  // null = permanent IAM keys
         string $region = Settings::DEFAULT_REGION,
         ?DateTimeImmutable $expires = null,
         ?DateTimeImmutable $loggedInAt = null,
@@ -65,7 +67,8 @@ final readonly class AwsCredentials implements JsonSerializable
             $token,
             $region,
             $expires,
-            $loggedInAt);
+            $loggedInAt
+        );
     }
 
     /**
@@ -74,10 +77,10 @@ final readonly class AwsCredentials implements JsonSerializable
     public function toArray(): array
     {
         return [
-            'key'     => $this->key,
-            'secret'  => $this->secret,
-            'token'   => $this->token,
-            'region'  => $this->region,
+            'key' => $this->key,
+            'secret' => $this->secret,
+            'token' => $this->token,
+            'region' => $this->region,
             'expires' => $this->expires?->getTimestamp(),
         ];
     }
@@ -85,11 +88,11 @@ final readonly class AwsCredentials implements JsonSerializable
     public function toArrayWithLogin(): array
     {
         return [
-            'key'      => $this->key,
-            'secret'   => $this->secret,
-            'token'    => $this->token,
-            'region'   => $this->region,
-            'expires'  => $this->expires?->getTimestamp(),
+            'key' => $this->key,
+            'secret' => $this->secret,
+            'token' => $this->token,
+            'region' => $this->region,
+            'expires' => $this->expires?->getTimestamp(),
             'login_at' => $this->loggedInAt,
         ];
     }

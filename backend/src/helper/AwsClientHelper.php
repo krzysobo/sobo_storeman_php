@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helper;
 
 use App\Dto\AwsCredentials;
@@ -21,12 +22,13 @@ class AwsClientHelper
         string $region,
         string $accessKey,
         string $secretKey,
-        string $version = 'latest'): StsClient {
+        string $version = 'latest'
+    ): StsClient {
         $sts = new StsClient([
-            'region'      => $region,
-            'version'     => $version,
+            'region' => $region,
+            'version' => $version,
             'credentials' => [
-                'key'    => $accessKey,
+                'key' => $accessKey,
                 'secret' => $secretKey,
             ],
         ]);
@@ -46,11 +48,12 @@ class AwsClientHelper
             $creds->key,
             $creds->secret,
             $creds->token,
-            null);
+            null
+        );
 
         $s3Client = new S3Client([
-            'region'      => $creds->region,
-            'version'     => $version,
+            'region' => $creds->region,
+            'version' => $version,
             'credentials' => $credentials,
         ]);
 
@@ -58,7 +61,6 @@ class AwsClientHelper
     }
 
     /**
-     *
      * @param string $region
      * @param string $accessKey
      * @param string $secretKey
@@ -75,7 +77,8 @@ class AwsClientHelper
             $accessKey,
             $secretKey,
             $sessionToken,
-            $region);
+            $region
+        );
 
         return self::getS3ClientWithAwsCredentials($creds);
     }
@@ -100,12 +103,12 @@ class AwsClientHelper
         }
 
         return new S3Client([
-            'region'      => $creds['region'],
-            'version'     => 'latest',
+            'region' => $creds['region'],
+            'version' => 'latest',
             'credentials' => [
-                'key'    => $creds['key'],
+                'key' => $creds['key'],
                 'secret' => $creds['secret'],
-                'token'  => $creds['token'],
+                'token' => $creds['token'],
             ],
         ]);
     }
@@ -121,15 +124,13 @@ class AwsClientHelper
         $awsCreds = AwsCredentialsHelper::getAwsCredentialsFromToken($token);
 
         return new S3Client([
-            'region'      => $awsCreds->region,
-            'version'     => 'latest',
+            'region' => $awsCreds->region,
+            'version' => 'latest',
             'credentials' => [
-                'key'    => $awsCreds->key,
+                'key' => $awsCreds->key,
                 'secret' => $awsCreds->secret,
-                'token'  => $awsCreds->token,
+                'token' => $awsCreds->token,
             ],
         ]);
-
     }
-
 }

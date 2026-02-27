@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Middleware;
 
 use App\Helper\AwsCredentialsHelper;
@@ -14,8 +15,7 @@ class AwsAuthMiddleware
     /**
      * Summary of __construct
      */
-    public function __construct()
-    {}
+    public function __construct() {}
 
     /**
      * Summary of __invoke
@@ -26,7 +26,7 @@ class AwsAuthMiddleware
     public function __invoke(Request $request, Handler $handler): ResponseInterface
     {
         $response = new SlimResponse();
-        $path     = $request->getUri()->getPath();
+        $path = $request->getUri()->getPath();
 
         // List of paths that bypass auth
         $publicPaths = Settings::getPublicPaths();
@@ -37,16 +37,16 @@ class AwsAuthMiddleware
         }
 
         $auth = $request->getHeaderLine('Authorization');
-        if (! preg_match('/Bearer\s(\S+)/', $auth, $matches)) {
+        if (!preg_match('/Bearer\s(\S+)/', $auth, $matches)) {
             return ResponseHelper::jsonResponse($response, [
                 'error' => 'Missing or invalid token',
             ], 401);
         }
 
-        $token    = $matches[1];
+        $token = $matches[1];
         $awsCreds = AwsCredentialsHelper::getAwsCredentialsFromToken($token);
 
-        if (! $awsCreds) {
+        if (!$awsCreds) {
             // invalid / expired / tampered
             return ResponseHelper::jsonResponse($response, [
                 'error' => 'Invalid or expired token',

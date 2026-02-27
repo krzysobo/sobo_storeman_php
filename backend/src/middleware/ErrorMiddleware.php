@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Middleware;
 
 use App\Http\ResponseHelper;
@@ -20,12 +21,14 @@ class ErrorMiddleware
             bool $logErrors,
             bool $logErrorDetails
         ) use ($app): Response {
-            $status = method_exists($exception, 'getCode') && $exception->getCode() >= 100 && $exception->getCode() < 600
-                ? $exception->getCode()
-                : 500;
+            $status = method_exists($exception, 'getCode') &&
+                $exception->getCode() >= 100 &&
+                $exception->getCode() < 600
+                    ? $exception->getCode()
+                    : 500;
 
             $payload = [
-                'error'   => get_class($exception),
+                'error' => get_class($exception),
                 'message' => $exception->getMessage(),
             ];
 
@@ -36,7 +39,5 @@ class ErrorMiddleware
             $response = $app->getResponseFactory()->createResponse($status);
             return ResponseHelper::jsonResponse($response, $payload, $status);
         });
-
     }
-
 }

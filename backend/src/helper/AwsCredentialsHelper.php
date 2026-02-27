@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helper;
 
 use App\Dto\AwsCredentials;
@@ -26,11 +27,11 @@ class AwsCredentialsHelper
         ?string $sessionToken = null
     ): void {
         $_SESSION['aws_creds'] = [
-            'key'          => $accessKey,
-            'secret'       => $secretKey,
-            'token'        => $sessionToken ?: null, // null = permanent creds
-            'region'       => $region,
-            'expires'      => $expiresIn, // may be null for permanent
+            'key' => $accessKey,
+            'secret' => $secretKey,
+            'token' => $sessionToken ?: null,  // null = permanent creds
+            'region' => $region,
+            'expires' => $expiresIn,  // may be null for permanent
             'logged_in_at' => time(),
         ];
     }
@@ -48,7 +49,7 @@ class AwsCredentialsHelper
         AwsCredentials $creds,
     ): string {
         $jwtHelper = self::getJwtHelperForAws();
-        $token     = $jwtHelper->createEncryptedTokenFromArray($creds->toArray());
+        $token = $jwtHelper->createEncryptedTokenFromArray($creds->toArray());
 
         return $token;
     }
@@ -74,7 +75,8 @@ class AwsCredentialsHelper
             $secretKey,
             $sessionToken,
             $region,
-            $expiresIn);
+            $expiresIn
+        );
 
         return self::storeAwsCredentialsAsToken($creds);
     }

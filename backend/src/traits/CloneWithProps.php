@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 trait CloneWithProps
@@ -13,7 +14,7 @@ trait CloneWithProps
      * @param array $overrides Associative array of property => new value
      *
      * @return self
-     */    
+     */
     protected static function cloneWithProps(self $obj, array $overrides): self
     {
         if (PHP_VERSION_ID >= 80500) {
@@ -27,10 +28,9 @@ trait CloneWithProps
                 $values[$prop] = $value;
             } else {
                 throw new \LogicException("Cannot override unknown property '$prop'");
-            }            
+            }
         }
 
         return new self(...$values);
     }
-
 }
