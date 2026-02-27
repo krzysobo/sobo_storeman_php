@@ -9,6 +9,7 @@ use App\Middleware\ErrorMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use App\Settings\Settings;
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -16,7 +17,7 @@ $app->addRoutingMiddleware();
 ErrorMiddleware::addErrorMiddleware($app);
 $app->add(new AwsAuthMiddleware());
 $app->get('/', function (Request $request, Response $response, array $args) {
-    $data = ['app' => 'Sobo Storeman', 'version' => "1.0"];
+    $data = ['app' => 'Sobo Storeman', 'version' => Settings::getAppVersion()];
 
     return ResponseHelper::jsonResponse($response, $data, 200);
 });
@@ -27,7 +28,7 @@ $app->get('/play', function (Request $request, Response $response, array $args) 
 
     $data = [
         'app'            => 'Sobo Storeman',
-        'version'        => "1.0",
+        'version'        => Settings::getAppVersion(),
         'is_playground'  => true,
         'php_version_id' => PHP_VERSION_ID,
         'phpversion()'   => phpversion(),
