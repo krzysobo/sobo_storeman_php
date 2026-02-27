@@ -6,7 +6,6 @@ use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key as CryptoKey;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key as FbJwtKey;
-use RuntimeException;
 
 class JwtHelper
 {
@@ -14,8 +13,24 @@ class JwtHelper
     public const string DEFAULT_ALGO = 'HS256';
 
     /**
-     * Summary of instanceWithEnvSettings
-     * @param string $payloadKey
+     * Summary of __construct.
+     *
+     * @throws \RuntimeException
+     */
+    public function __construct(
+        private string $secret,
+        private string $encKey,
+        private string $payloadKey = self::DEFAULT_PAYLOAD_KEY,
+        private string $algo = self::DEFAULT_ALGO
+    ) {
+        if ((empty($secret)) || (empty($encKey))) {
+            throw new \RuntimeException('TOKEN_SECRET and TOKEN_ENC_KEY may not be empty!');
+        }
+    }
+
+    /**
+     * Summary of instanceWithEnvSettings.
+     *
      * @return JwtHelper
      */
     public static function instanceWithEnvSettings(string $payloadKey = self::DEFAULT_PAYLOAD_KEY)
@@ -30,32 +45,12 @@ class JwtHelper
     }
 
     /**
-     * Summary of __construct
-     * @param string $secret
-     * @param string $encKey
-     * @param string $payloadKey
-     * @throws RuntimeException
-     */
-    public function __construct(
-        private string $secret,
-        private string $encKey,
-        private string $payloadKey = self::DEFAULT_PAYLOAD_KEY,
-        private string $algo = self::DEFAULT_ALGO
-    ) {
-        if ((empty($secret)) || (empty($encKey))) {
-            throw new RuntimeException('TOKEN_SECRET and TOKEN_ENC_KEY may not be empty!');
-        }
-    }
-
-    /**
-     * Summary of createEncryptedToken
-     * @param array $payload
-     * @param int $expiresIn
-     * @return string
+     * Summary of createEncryptedToken.
      */
     public function createEncryptedTokenFromArray(array $partToEncrypt, int $expiresIn = 3600): string
     {
         $partToEncryptStr = json_encode($partToEncrypt);
+
         return $this->createEncryptedTokenFromString($partToEncryptStr, $expiresIn);
     }
 
@@ -76,9 +71,7 @@ class JwtHelper
     }
 
     /**
-     * Summary of decodeToken
-     * @param string $token
-     * @return array|null
+     * Summary of decodeToken.
      */
     public function decodeToken(string $token): ?array
     {
@@ -95,9 +88,9 @@ class JwtHelper
     }
 
     /**
-     * Summary of getDecryptedTokenData
-     * @param string $token
-     * @return array{exp: mixed, iat: mixed|null}
+     * Summary of getDecryptedTokenData.
+     *
+     * @return array{exp: mixed, iat: null|mixed}
      */
     public function getDecryptedTokenData(string $token): ?array
     {
@@ -114,13 +107,11 @@ class JwtHelper
 
             // $decryptedPayload = json_decode($decryptedJson, true);
 
-            $res = [
+            return [
                 'iat' => $decoded['iat'],
                 'exp' => $decoded['exp'],
                 $this->payloadKey => $decryptedRawPayload,
             ];
-
-            return $res;
         } catch (\Exception $e) {
             return null;
         }

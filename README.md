@@ -50,17 +50,27 @@ Future:
 - CloneWithProps trait created, for cloning a PHP object while updating some properties; for compatibility between 8.5.x and <8.5.x
 - AwsCredentials DTO used instead of arrays
 
-- adding pretty-php (code cleaner)
 - adding php-parallel-lint
     composer require --dev php-parallel-lint/php-parallel-lint
 
-- adding php_codesniffer
+(XX-removed to install phpunit ^11) - adding pretty-php (code cleaner)
+
+(XX-removed after installing php-cs-fixer) - adding php_codesniffer
     composer require --dev squizlabs/php_codesniffer
 
+    
 
 
 27.02.2026 (0.0.3):
 ~~~~~~~~~~~~~~~~~~~~~~~~
+- removal of pretty-php because it conflicts with phpunit ^11
 
+- removal of php_codesniffer, since it is no longer needed with php-cs-fixer
 
-    - tests...
+- installing PHPUnit 11 (for PHP 8.4+)
+    composer require --dev phpunit/phpunit ^11 
+
+- installing php-cs-fixer as both a linter and a fixer, to be used INSTEAD pretty-php and php_codesniffer
+    composer require --dev friendsofphp/php-cs-fixer:^3
+
+- tests...

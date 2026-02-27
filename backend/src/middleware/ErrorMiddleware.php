@@ -6,7 +6,6 @@ use App\Http\ResponseHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
-use Throwable;
 
 class ErrorMiddleware
 {
@@ -16,14 +15,14 @@ class ErrorMiddleware
 
         $errorMiddleware->setDefaultErrorHandler(function (
             Request $request,
-            Throwable $exception,
+            \Throwable $exception,
             bool $displayErrorDetails,
             bool $logErrors,
             bool $logErrorDetails
         ) use ($app): Response {
-            $status = method_exists($exception, 'getCode') &&
-                $exception->getCode() >= 100 &&
-                $exception->getCode() < 600
+            $status = method_exists($exception, 'getCode')
+                && $exception->getCode() >= 100
+                && $exception->getCode() < 600
                     ? $exception->getCode()
                     : 500;
 
@@ -37,6 +36,7 @@ class ErrorMiddleware
             }
 
             $response = $app->getResponseFactory()->createResponse($status);
+
             return ResponseHelper::jsonResponse($response, $payload, $status);
         });
     }

@@ -6,17 +6,11 @@ use App\Dto\AwsCredentials;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use AWS\Sts\StsClient;
-use RuntimeException;
 
 class AwsClientHelper
 {
     /**
-     * Summary of getStsClient
-     * @param string $region
-     * @param string $accessKey
-     * @param string $secretKey
-     * @param string $version
-     * @return StsClient
+     * Summary of getStsClient.
      */
     public static function getStsClient(
         string $region,
@@ -24,7 +18,7 @@ class AwsClientHelper
         string $secretKey,
         string $version = 'latest'
     ): StsClient {
-        $sts = new StsClient([
+        return new StsClient([
             'region' => $region,
             'version' => $version,
             'credentials' => [
@@ -32,15 +26,12 @@ class AwsClientHelper
                 'secret' => $secretKey,
             ],
         ]);
-
-        return $sts;
     }
 
     /**
-     * Summary of getS3ClientWithAwsCredentials
-     * @param AwsCredentials $creds
+     * Summary of getS3ClientWithAwsCredentials.
+     *
      * @param mixed $version
-     * @return S3Client
      */
     public static function getS3ClientWithAwsCredentials(AwsCredentials $creds, $version = 'latest'): S3Client
     {
@@ -51,21 +42,15 @@ class AwsClientHelper
             null
         );
 
-        $s3Client = new S3Client([
+        return new S3Client([
             'region' => $creds->region,
             'version' => $version,
             'credentials' => $credentials,
         ]);
-
-        return $s3Client;
     }
 
     /**
-     * @param string $region
-     * @param string $accessKey
-     * @param string $secretKey
      * @param mixed $sessionToken
-     * @return S3Client
      */
     public static function getS3ClientWithAwsCredentialsList(
         string $region,
@@ -84,14 +69,14 @@ class AwsClientHelper
     }
 
     /**
-     * Summary of getS3ClientWithSessionData
-     * @throws RuntimeException
-     * @return S3Client
+     * Summary of getS3ClientWithSessionData.
+     *
+     * @throws \RuntimeException
      */
     public static function getS3ClientWithCredentialsFromSession(): S3Client
     {
         if (empty($_SESSION['aws_creds'])) {
-            throw new RuntimeException('Not authenticated with AWS');
+            throw new \RuntimeException('Not authenticated with AWS');
         }
 
         $creds = $_SESSION['aws_creds'];
@@ -99,7 +84,8 @@ class AwsClientHelper
         // Optional: check expiration
         if (time() > $creds['expires']) {
             unset($_SESSION['aws_temp']);
-            throw new RuntimeException('AWS session expired');
+
+            throw new \RuntimeException('AWS session expired');
         }
 
         return new S3Client([
@@ -114,10 +100,9 @@ class AwsClientHelper
     }
 
     /**
-     * Summary of getS3ClientWithCredentialsFromToken
-     * @param string $token
-     * @throws RuntimeException
-     * @return S3Client
+     * Summary of getS3ClientWithCredentialsFromToken.
+     *
+     * @throws \RuntimeException
      */
     public static function getS3ClientWithCredentialsFromToken(string $token): S3Client
     {

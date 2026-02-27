@@ -4,11 +4,8 @@ namespace App\Dto;
 
 use App\Settings\Settings;
 use App\Traits\CloneWithProps;
-use DateTimeImmutable;
-use InvalidArgumentException;
-use JsonSerializable;
 
-final readonly class AwsCredentials implements JsonSerializable
+final readonly class AwsCredentials implements \JsonSerializable
 {
     use CloneWithProps;
 
@@ -17,36 +14,36 @@ final readonly class AwsCredentials implements JsonSerializable
         public string $secret,
         public ?string $token = null,  // null = permanent IAM keys
         public string $region = Settings::DEFAULT_REGION,
-        public ?DateTimeImmutable $expires = null,
-        public ?DateTimeImmutable $loggedInAt = null,
+        public ?\DateTimeImmutable $expires = null,
+        public ?\DateTimeImmutable $loggedInAt = null,
     ) {
         if (empty($key) || empty($secret)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 'AWS key (access Key Id) and secret (secret key) are required'
             );
         }
     }
 
-    public function cloneWithLoginAt(DateTimeImmutable $dt): self
+    public function cloneWithLoginAt(\DateTimeImmutable $dt): self
     {
         return self::cloneWithProps($this, ['loggedInAt' => $dt]);
     }
 
     /**
-     * Create from the array we currently store in JWT payload
+     * Create from the array we currently store in JWT payload.
      */
     public static function fromArray(array $data): self
     {
         $expires = null;
         if (!empty($data['expires'])) {
             $expires = is_int($data['expires'])
-                ? (new DateTimeImmutable())->setTimestamp($data['expires'])
-                : new DateTimeImmutable($data['expires']);
+                ? (new \DateTimeImmutable())->setTimestamp($data['expires'])
+                : new \DateTimeImmutable($data['expires']);
         }
 
         return new self(
-            key: $data['key'] ?? throw new InvalidArgumentException('key (Access Key Id) is missing'),
-            secret: $data['secret'] ?? throw new InvalidArgumentException('secret (Secret Key) is missing'),
+            key: $data['key'] ?? throw new \InvalidArgumentException('key (Access Key Id) is missing'),
+            secret: $data['secret'] ?? throw new \InvalidArgumentException('secret (Secret Key) is missing'),
             token: $data['token'] ?? null,
             region: $data['region'] ?? Settings::getDefaultRegion(),
             expires: $expires,
@@ -58,8 +55,8 @@ final readonly class AwsCredentials implements JsonSerializable
         string $secret,
         ?string $token = null,  // null = permanent IAM keys
         string $region = Settings::DEFAULT_REGION,
-        ?DateTimeImmutable $expires = null,
-        ?DateTimeImmutable $loggedInAt = null,
+        ?\DateTimeImmutable $expires = null,
+        ?\DateTimeImmutable $loggedInAt = null,
     ): self {
         return new self(
             $key,
@@ -72,7 +69,7 @@ final readonly class AwsCredentials implements JsonSerializable
     }
 
     /**
-     * Turn the credentials into array (for JWT encryption or logging)
+     * Turn the credentials into array (for JWT encryption or logging).
      */
     public function toArray(): array
     {
@@ -99,12 +96,12 @@ final readonly class AwsCredentials implements JsonSerializable
 
     public function isExpired(): bool
     {
-        return $this->expires !== null && $this->expires < new DateTimeImmutable();
+        return null !== $this->expires && $this->expires < new \DateTimeImmutable();
     }
 
     public function hasSessionToken(): bool
     {
-        return $this->token !== null;
+        return null !== $this->token;
     }
 
     public function jsonSerialize(): array

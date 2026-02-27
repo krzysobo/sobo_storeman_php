@@ -12,8 +12,6 @@ trait CloneWithProps
      *
      * @param self  $obj       The object to clone (usually $this)
      * @param array $overrides Associative array of property => new value
-     *
-     * @return self
      */
     protected static function cloneWithProps(self $obj, array $overrides): self
     {
@@ -27,7 +25,7 @@ trait CloneWithProps
             if (property_exists($obj, $prop)) {
                 $values[$prop] = $value;
             } else {
-                throw new \LogicException("Cannot override unknown property '$prop'");
+                throw new \LogicException("Cannot override unknown property '{$prop}'");
             }
         }
 

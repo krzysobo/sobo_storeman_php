@@ -7,9 +7,9 @@ use App\Helper\AwsClientHelper;
 use App\Helper\AwsCredentialsHelper;
 use App\Http\ResponseHelper;
 use App\Settings\Settings;
+use Aws\Exception\AwsException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use DateTimeImmutable;
 
 $app->get('/aws/s3/bucket/{bucket_name}', function (Request $request, Response $response, array $args) {
     $bucketName = $args['bucket_name'];
@@ -77,7 +77,7 @@ $app->post('/aws/login', function (Request $request, Response $response) {
             $sessionToken,
             $region,
             $expiresIn,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
         $jwtToken = AwsCredentialsHelper::storeAwsCredentialsAsToken($creds);
 
@@ -91,15 +91,15 @@ $app->post('/aws/login', function (Request $request, Response $response) {
             'region' => $region,
             'jwt_token' => $jwtToken,
         ], 200);
-    } catch (\Aws\Exception\AwsException $e) {
+    } catch (AwsException $e) {
         $msg = $e->getAwsErrorMessage() ?? $e->getMessage();
         $code = $e->getAwsErrorCode() ?? 'Unknown';
 
         $status = 401;
-        if (stripos($msg, 'expired') !== false || stripos($code, 'ExpiredToken') !== false) {
+        if (false !== stripos($msg, 'expired') || false !== stripos($code, 'ExpiredToken')) {
             $msg .= ' (token expired)';
             $status = 419;  // or 401
-        } elseif (stripos($msg, 'invalid') !== false || stripos($code, 'InvalidClientTokenId') !== false) {
+        } elseif (false !== stripos($msg, 'invalid') || false !== stripos($code, 'InvalidClientTokenId')) {
             $msg .= ' (invalid credentials)';
         }
 

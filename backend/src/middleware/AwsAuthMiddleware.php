@@ -13,15 +13,12 @@ use Slim\Psr7\Response as SlimResponse;
 class AwsAuthMiddleware
 {
     /**
-     * Summary of __construct
+     * Summary of __construct.
      */
     public function __construct() {}
 
     /**
-     * Summary of __invoke
-     * @param Request $request
-     * @param Handler $handler
-     * @return ResponseInterface
+     * Summary of __invoke.
      */
     public function __invoke(Request $request, Handler $handler): ResponseInterface
     {

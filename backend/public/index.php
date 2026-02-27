@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Dto\AwsCredentials;
 use App\Http\ResponseHelper;
@@ -33,7 +33,7 @@ $app->get('/play', function (Request $request, Response $response, array $args) 
         'php_version_id' => PHP_VERSION_ID,
         'phpversion()' => phpversion(),
         'playground' => [
-            'aws_creds' => $awsc->toArrayWithLogin()
+            'aws_creds' => $awsc->toArrayWithLogin(),
         ],
     ];
 
@@ -41,6 +41,6 @@ $app->get('/play', function (Request $request, Response $response, array $args) 
 });
 
 // load sub-routes
-require_once __DIR__ . '/../src/routes/aws/s3.php';
+require_once __DIR__.'/../src/routes/aws/s3.php';
 
 $app->run();

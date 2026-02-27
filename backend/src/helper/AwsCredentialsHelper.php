@@ -3,21 +3,14 @@
 namespace App\Helper;
 
 use App\Dto\AwsCredentials;
-use App\Helper\JwtHelper;
-use Aws\Credentials\Credentials;
-use JsonException;
-use RuntimeException;
 
 class AwsCredentialsHelper
 {
     /**
-     * Summary of storeAwsCredentialsInSession
-     * @param string $region
-     * @param string $accessKey
-     * @param string $secretKey
+     * Summary of storeAwsCredentialsInSession.
+     *
      * @param mixed $expiresIn
      * @param mixed $sessionToken
-     * @return void
      */
     public static function storeAwsCredentialsInSession(
         string $region,
@@ -37,31 +30,21 @@ class AwsCredentialsHelper
     }
 
     /**
-     * Summary of storeAwsCredentialsAsToken
-     * @param string $region
-     * @param string $accessKey
-     * @param string $secretKey
-     * @param mixed $expiresIn
-     * @param mixed $sessionToken
-     * @return string
+     * Summary of storeAwsCredentialsAsToken.
      */
     public static function storeAwsCredentialsAsToken(
         AwsCredentials $creds,
     ): string {
         $jwtHelper = self::getJwtHelperForAws();
-        $token = $jwtHelper->createEncryptedTokenFromArray($creds->toArray());
 
-        return $token;
+        return $jwtHelper->createEncryptedTokenFromArray($creds->toArray());
     }
 
     /**
-     * Summary of storeAwsCredentialsAsToken
-     * @param string $region
-     * @param string $accessKey
-     * @param string $secretKey
+     * Summary of storeAwsCredentialsAsToken.
+     *
      * @param mixed $expiresIn
      * @param mixed $sessionToken
-     * @return string
      */
     public static function storeAwsCredentialsListAsToken(
         string $region,
@@ -82,43 +65,37 @@ class AwsCredentialsHelper
     }
 
     /**
-     * Summary of getAwsCredentialsFromToken
-     * @param string $token
-     * @return AwsCredentials
+     * Summary of getAwsCredentialsFromToken.
      */
     public static function getAwsCredentialsFromToken(string $token): AwsCredentials
     {
         $jwtHelper = self::getJwtHelperForAws();
 
         $decodedToken = $jwtHelper->getDecryptedTokenData($token);
-        if (($decodedToken === null) || (empty($decodedToken))) {
-            throw new RuntimeException('Incorrect JWT token - AWS credentials not found.');
+        if ((null === $decodedToken) || (empty($decodedToken))) {
+            throw new \RuntimeException('Incorrect JWT token - AWS credentials not found.');
         }
 
         if (time() > $decodedToken['exp']) {
-            throw new RuntimeException('JWT Token with AWS credentials has expired');
+            throw new \RuntimeException('JWT Token with AWS credentials has expired');
         }
 
         try {
             $tokenPayload = json_decode($decodedToken['payload'], true, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (\JsonException $e) {
             $msg = $e->getMessage();
-            throw new RuntimeException("Malformed token payload JSON: $msg");
+
+            throw new \RuntimeException("Malformed token payload JSON: {$msg}");
         }
 
-        $creds = AwsCredentials::fromArray($tokenPayload);
-
-        return $creds;
+        return AwsCredentials::fromArray($tokenPayload);
     }
 
     /**
-     * Summary of getJwtHelperForAws
-     * @return JwtHelper
+     * Summary of getJwtHelperForAws.
      */
     private static function getJwtHelperForAws(): JwtHelper
     {
-        $jwtHelper = JwtHelper::instanceWithEnvSettings();
-
-        return $jwtHelper;
+        return JwtHelper::instanceWithEnvSettings();
     }
 }
