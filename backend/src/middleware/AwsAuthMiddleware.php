@@ -1,7 +1,7 @@
 <?php
 namespace App\Middleware;
 
-use App\Helper\AwsHelper;
+use App\Helper\AwsCredentialsHelper;
 use App\Http\ResponseHelper;
 use App\Settings\Settings;
 use Psr\Http\Message\ResponseInterface;
@@ -44,7 +44,7 @@ class AwsAuthMiddleware
         }
 
         $token    = $matches[1];
-        $awsCreds = AwsHelper::getAwsCredentialsFromToken($token);
+        $awsCreds = AwsCredentialsHelper::getAwsCredentialsFromToken($token);
 
         if (! $awsCreds) {
             // invalid / expired / tampered

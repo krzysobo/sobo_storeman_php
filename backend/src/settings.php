@@ -7,6 +7,7 @@ class Settings {
     private static array $publicPaths = [
             '/aws/login',
             '/',
+            '/play',
             '/openapi.json',
             // TODO - static asset prefixes
         ];
@@ -17,5 +18,9 @@ class Settings {
      */
     public static function getPublicPaths(): array {
         return self::$publicPaths;
+    }
+
+    public static function getDefaultRegion(): string {
+        return self::DEFAULT_REGION;
     }
 }

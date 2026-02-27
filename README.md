@@ -41,3 +41,12 @@ Future:
 - Google Drive (planned)
 - Dropbox (planned)
 - Nextcloud (planned)
+
+
+27.02.2026:
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- AwsHelper split into smaller classes
+- CloneWithProps trait created, for cloning a PHP object while updating some properties; for compatibility between 8.5.x and <8.5.x
+- AwsCredentials DTO used instead of arrays
+

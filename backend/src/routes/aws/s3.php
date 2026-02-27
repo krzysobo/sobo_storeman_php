@@ -1,17 +1,21 @@
 <?php
 namespace App\Routes\Aws\S3;
 
-use App\Helper\AwsHelper;
+use App\Dto\AwsCredentials;
+use App\Helper\AwsClientHelper;
+use App\Helper\AwsCredentialsHelper;
 use App\Http\ResponseHelper;
 use App\Settings\Settings;
+use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 $app->get('/aws/s3/bucket/{bucket_name}', function (Request $request, Response $response, array $args) {
     $bucketName = $args['bucket_name'];
     $resItems   = [];
-    $creds      = $request->getAttribute('aws_creds');
-    $s3Client   = AwsHelper::getS3ClientWithDecodedTokenCredentials($creds);
+
+    $creds    = $request->getAttribute('aws_creds'); // Already AwsCredentials object
+    $s3Client = AwsClientHelper::getS3ClientWithAwsCredentials($creds);
 
     $contents = $s3Client->listObjectsV2([
         'Bucket' => $bucketName,
@@ -27,8 +31,8 @@ $app->get('/aws/s3/bucket/{bucket_name}', function (Request $request, Response $
 });
 
 $app->get('/aws/s3/bucket-list', function (Request $request, Response $response) {
-    $creds    = $request->getAttribute('aws_creds');
-    $s3Client = AwsHelper::getS3ClientWithDecodedTokenCredentials($creds);
+    $creds    = $request->getAttribute('aws_creds'); // Already AwsCredentials object
+    $s3Client = AwsClientHelper::getS3ClientWithAwsCredentials($creds);
 
     $result  = $s3Client->listBuckets();
     $buckets = array_column($result['Buckets'], 'Name');
@@ -54,7 +58,7 @@ $app->post('/aws/login', function (Request $request, Response $response) {
 
     try {
         // basic pre-check to catch the obvious mistakes
-        $testS3Client = AwsHelper::getS3ClientWithCredentials(
+        $testS3Client = AwsClientHelper::getS3ClientWithAwsCredentialsList(
             $region,
             $accessKey,
             $secretKey,
@@ -65,12 +69,14 @@ $app->post('/aws/login', function (Request $request, Response $response) {
         // and we can safely store them in SESSION.
         $testS3Client->listBuckets();
 
-        $jwtToken = AwsHelper::storeAwsCredentialsAsToken(
-            $region,
+        $creds = AwsCredentials::fromArgsList(
             $accessKey,
             $secretKey,
+            $sessionToken,
+            $region,
             $expiresIn,
-            $sessionToken);
+            new DateTimeImmutable());
+        $jwtToken = AwsCredentialsHelper::storeAwsCredentialsAsToken($creds);
 
         return ResponseHelper::jsonResponse($response, [
             'status'    => 'authenticated',

@@ -47,24 +47,30 @@ class JwtHelper
     }
 
     /**
-     * Summary of createToken
-     * @param array $awsCreds
+     * Summary of createEncryptedToken
+     * @param array $payload
      * @param int $expiresIn
      * @return string
      */
-    public function createToken(array $awsCreds, int $expiresIn = 3600): string
+    public function createEncryptedTokenFromArray(array $partToEncrypt, int $expiresIn = 3600): string
     {
-        $encryptedAws = Crypto::encrypt(
-            plaintext: json_encode($awsCreds),
+        $partToEncryptStr = json_encode($partToEncrypt);
+        return $this->createEncryptedTokenFromString($partToEncryptStr, $expiresIn);
+    }
+
+    public function createEncryptedTokenFromString(string $partToEncrypt, int $expiresIn = 3600): string
+    {
+        $encryptedPart = Crypto::encrypt(
+            plaintext: $partToEncrypt,
             key: CryptoKey::loadFromAsciiSafeString($this->encKey));
 
-        $payload = [
+        $wholeTokenPayload = [
             'iat'             => time(),
             'exp'             => time() + $expiresIn,
-            $this->payloadKey => $encryptedAws,
+            $this->payloadKey => $encryptedPart,
         ];
 
-        return JWT::encode($payload, $this->secret, 'HS256');
+        return JWT::encode($wholeTokenPayload, $this->secret, 'HS256');
     }
 
     /**
@@ -98,16 +104,16 @@ class JwtHelper
         }
 
         try {
-            $decryptedJson = Crypto::decrypt(
+            $decryptedRawPayload = Crypto::decrypt(
                 ciphertext: $decoded[$this->payloadKey],
                 key: CryptoKey::loadFromAsciiSafeString($this->encKey));
 
-            $decryptedPayload = json_decode($decryptedJson, true);
+            // $decryptedPayload = json_decode($decryptedJson, true);
 
             $res = [
                 'iat'             => $decoded['iat'],
                 'exp'             => $decoded['exp'],
-                $this->payloadKey => $decryptedPayload,
+                $this->payloadKey => $decryptedRawPayload,
             ];
 
             return $res;

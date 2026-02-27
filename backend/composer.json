@@ -6,10 +6,12 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/",
-            "App\\Settings\\": "src/",
-            "App\\Middleware\\": "src/middleware/",
+            "App\\Dto\\": "src/dto/",
+            "App\\Helper\\": "src/helper/",
             "App\\Http\\": "src/http/",
-            "App\\Helper\\": "src/helper/"
+            "App\\Middleware\\": "src/middleware/",
+            "App\\Settings\\": "src/",
+            "App\\Traits\\": "src/traits/"
         },
         "files": [
             "src/settings.php"
@@ -28,5 +30,8 @@
         "aws/aws-sdk-php": "^3.370",
         "firebase/php-jwt": "^7.0",
         "defuse/php-encryption": "^2.4"
+    },
+    "require-dev": {
+        "lkrms/pretty-php": "^0.4.93"
     }
 }
