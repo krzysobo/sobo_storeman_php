@@ -23,7 +23,7 @@ Technological stack:
 
 
 
-TODO as of 24.02.2026:
+TODO as of 24.02.2026 (0.0.1):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now/Soon:
@@ -43,10 +43,24 @@ Future:
 - Nextcloud (planned)
 
 
-27.02.2026:
+27.02.2026 (0.0.2):
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 - AwsHelper split into smaller classes
 - CloneWithProps trait created, for cloning a PHP object while updating some properties; for compatibility between 8.5.x and <8.5.x
 - AwsCredentials DTO used instead of arrays
 
+- adding pretty-php (code cleaner)
+- adding php-parallel-lint
+    composer require --dev php-parallel-lint/php-parallel-lint
+
+- adding php_codesniffer
+    composer require --dev squizlabs/php_codesniffer
+
+
+
+27.02.2026 (0.0.3):
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    - tests...
