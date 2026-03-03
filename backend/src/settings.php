@@ -5,7 +5,7 @@ namespace App\Settings;
 class Settings
 {
     public const string DEFAULT_REGION = 'eu-north-1';  // 'us-west-2'
-    public const string APP_VERSION = '0.0.3';
+    public const string APP_VERSION = '0.0.4';
 
     private static array $publicPaths = [
         '/aws/login',

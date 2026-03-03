@@ -74,3 +74,9 @@ Future:
     composer require --dev friendsofphp/php-cs-fixer:^3
 
 - tests...
+
+
+03.03.2026 (0.0.4):
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- unit tests 
