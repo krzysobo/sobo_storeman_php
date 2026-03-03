@@ -6,6 +6,11 @@ backend/vendor/*
 
 .env
 
+# -- a local test configuration, may contain local settings; 
+# -- please always create it from phpunit.xml.dist for each environment
+phpunit.xml  
+.phpunit.cache
+
 
 # ====== Angular specific =======
 /dist/

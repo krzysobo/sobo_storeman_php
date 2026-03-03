@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Helper;
 
 use Defuse\Crypto\Crypto;
@@ -10,7 +9,7 @@ use Firebase\JWT\Key as FbJwtKey;
 class JwtHelper
 {
     public const string DEFAULT_PAYLOAD_KEY = 'payload';
-    public const string DEFAULT_ALGO = 'HS256';
+    public const string DEFAULT_ALGO        = 'HS256';
 
     /**
      * Summary of __construct.
@@ -28,12 +27,17 @@ class JwtHelper
         }
     }
 
+    public function getPayloadKey(): string
+    {
+        return $this->payloadKey;
+    }
+
     /**
      * Summary of instanceWithEnvSettings.
      *
      * @return JwtHelper
      */
-    public static function instanceWithEnvSettings(string $payloadKey = self::DEFAULT_PAYLOAD_KEY)
+    public static function instanceWithEnvSettings(string $payloadKey = self::DEFAULT_PAYLOAD_KEY): JwtHelper
     {
         // TOKEN_SECRET and TOKEN_ENC_KEY - generated with genkeys.php and stored into .env outside of git.
         // TOKEN_ENC_KEY - random 256-bit key from Key::createNewRandomKey()->saveToAsciiSafeString()
@@ -62,8 +66,8 @@ class JwtHelper
         );
 
         $wholeTokenPayload = [
-            'iat' => time(),
-            'exp' => time() + $expiresIn,
+            'iat'             => time(),
+            'exp'             => time() + $expiresIn,
             $this->payloadKey => $encryptedPart,
         ];
 
@@ -95,7 +99,8 @@ class JwtHelper
     public function getDecryptedTokenData(string $token): ?array
     {
         $decoded = $this->decodeToken($token);
-        if (!$decoded || empty($decoded[$this->payloadKey])) {
+
+        if (! $decoded || empty($decoded[$this->payloadKey])) {
             return null;
         }
 
@@ -108,12 +113,26 @@ class JwtHelper
             // $decryptedPayload = json_decode($decryptedJson, true);
 
             return [
-                'iat' => $decoded['iat'],
-                'exp' => $decoded['exp'],
+                'iat'             => $decoded['iat'],
+                'exp'             => $decoded['exp'],
                 $this->payloadKey => $decryptedRawPayload,
             ];
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    public function getDecryptedTokenDataAsArray(string $token): ?array
+    {
+        $res = $this->getDecryptedTokenData($token);
+        if ($res === null) {
+            return null;
+        }
+
+        return [
+            'iat'             => $res['iat'],
+            'exp'             => $res['exp'],
+            $this->payloadKey => json_decode($res[$this->payloadKey], true),
+        ];
     }
 }
