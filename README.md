@@ -80,3 +80,14 @@ Future:
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 - unit tests 
+- adding PHP-DI - just starting now...
+    composer require php-di/slim-bridge
+
+        https://php-di.org/doc/frameworks/slim.html
+
+
+- adding nyholm/psr7
+    composer require nyholm/psr7
+
+- adding guzzlehttp/psr7
+    composer require guzzlehttp/psr7
