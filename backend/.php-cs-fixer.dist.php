@@ -1,20 +1,27 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
+$rules = [
+    '@PhpCsFixer'            => true,
+    'binary_operator_spaces' => [
+        'default'   => 'single_space', // Reszta operatorów standardowo
+        'operators' => [
+            '=>' => 'align_single_space_minimal', // To odpowiada za "klucz + 1 spacja"
+        ],
+    ],
+];
+
 return (new Config())
     ->setRiskyAllowed(false)
-    ->setRules([
-        '@auto' => true,
-        '@PhpCsFixer' => true
-    ])
+    ->setRules($rules)
     // 💡 by default, Fixer looks for `*.php` files excluding `./vendor/` - here, you can groom this config
     ->setFinder(
         (new Finder())
-            // 💡 root folder to check
+        // 💡 root folder to check
             ->in(__DIR__)
             // 💡 additional files, eg bin entry file
             // ->append([__DIR__.'/bin-entry-file'])

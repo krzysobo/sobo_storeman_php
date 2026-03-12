@@ -1,0 +1,193 @@
+<?php
+namespace App\Dto;
+
+use App\Traits\CloneWithProps;
+
+/** this info is used in getObject;
+ * getObjectListV2 has a shorter version, hence AwsS3ObjectInfoShort */
+final readonly class AwsS3ObjectInfoLong implements \JsonSerializable
+{
+    use CloneWithProps;
+
+    public function __construct(
+        public string $acceptRanges,                 //   <string>',
+        public mixed $body,                          //   <string || resource || Psr\Http\Message\StreamInterface>,
+        public bool $bucketKeyEnabled,               //   true || false,
+        public string $cacheControl,                 //   '<string>',
+        public string $checksumCRC32,                //   '<string>',
+        public string $checksumCRC32C,               //   '<string>',
+        public string $checksumCRC64NVME,            //   '<string>',
+        public string $checksumSHA1,                 //   '<string>',
+        public string $checksumSHA256,               //   '<string>',
+        public mixed $checksumType,                  //   'COMPOSITE|FULL_OBJECT',
+        public string $contentDisposition,           //   '<string>',
+        public string $contentEncoding,              //   '<string>',
+        public string $contentLanguage,              //   '<string>',
+        public int $contentLength,                   //   <integer>,
+        public string $contentRange,                 //   '<string>',
+        public string $contentType,                  //   '<string>',
+        public bool $deleteMarker,                   //   true || false,
+        public string $eTag,                         //   '<string>',
+        public string $expiration,                   //   '<string>',
+        public \DateTime $expires,                   //   <DateTime>,
+        public string $expiresString,                //   '<string>',
+        public \DateTime $lastModified,              //   <DateTime>,
+        public string $metadata,                     //   ['<string>', ...],
+        public int $missingMeta,                     //   <integer>,
+        public string $objectLockLegalHoldStatus,    //   'ON|OFF',
+        public string $objectLockMode,               //   'GOVERNANCE|COMPLIANCE',
+        public \DateTime $objectLockRetainUntilDate, //   <DateTime>,
+        public int $partsCount,                      //   <integer>,
+        public string $replicationStatus,            //   'COMPLETE|PENDING|FAILED|REPLICA|COMPLETED',
+        public string $requestCharged,               //   'requester',
+        public string $restore,                      //   '<string>',
+        public string $sSECustomerAlgorithm,         //   '<string>',
+        public string $sSECustomerKeyMD5,            //   '<string>',
+        public string $sSEKMSKeyId,                  //   '<string>',
+        public string $serverSideEncryption,         //   'AES256|aws:fsx|aws:kms|aws:kms:dsse',
+        public string $storageClass,                 //   'STANDARD|REDUCED_REDUNDANCY|STANDARD_IA|ONEZONE_IA|INTELLIGENT_TIERING|GLACIER|DEEP_ARCHIVE|OUTPOSTS|GLACIER_IR|SNOW|EXPRESS_ONEZONE|FSX_OPENZFS|FSX_ONTAP',
+        public int $tagCount,                        //   <integer>,
+        public string $versionId,                    //   '<string>',
+        public string $websiteRedirectLocation,      //   '<string>',
+    ) {}
+
+    public static function fromAwsFormat(array $object): self
+    {
+        return new self(
+            acceptRanges: $object['AcceptRanges'],
+            body: $object['Body'],
+            bucketKeyEnabled: $object['BucketKeyEnabled'],
+            cacheControl: $object['CacheControl'],
+            checksumCRC32: $object['ChecksumCRC32'],
+            checksumCRC32C: $object['ChecksumCRC32C'],
+            checksumCRC64NVME: $object['ChecksumCRC64NVME'],
+            checksumSHA1: $object['ChecksumSHA1'],
+            checksumSHA256: $object['ChecksumSHA256'],
+            checksumType: $object['ChecksumType'],
+            contentDisposition: $object['ContentDisposition'],
+            contentEncoding: $object['ContentEncoding'],
+            contentLanguage: $object['ContentLanguage'],
+            contentLength: $object['ContentLength'],
+            contentRange: $object['ContentRange'],
+            contentType: $object['ContentType'],
+            deleteMarker: $object['DeleteMarker'],
+            eTag: $object['ETag'],
+            expiration: $object['Expiration'],
+            expires: $object['Expires'],
+            expiresString: $object['ExpiresString'],
+            lastModified: $object['LastModified'],
+            metadata: $object['Metadata'],
+            missingMeta: $object['MissingMeta'],
+            objectLockLegalHoldStatus: $object['ObjectLockLegalHoldStatus'],
+            objectLockMode: $object['ObjectLockMode'],
+            objectLockRetainUntilDate: $object['ObjectLockRetainUntilDate'],
+            partsCount: $object['PartsCount'],
+            replicationStatus: $object['ReplicationStatus'],
+            requestCharged: $object['RequestCharged'],
+            restore: $object['Restore'],
+            sSECustomerAlgorithm: $object['SSECustomerAlgorithm'],
+            sSECustomerKeyMD5: $object['SSECustomerKeyMD5'],
+            sSEKMSKeyId: $object['SSEKMSKeyId'],
+            serverSideEncryption: $object['ServerSideEncryption'],
+            storageClass: $object['StorageClass'],
+            tagCount: $object['TagCount'],
+            versionId: $object['VersionId'],
+            websiteRedirectLocation: $object['WebsiteRedirectLocation'],
+        );
+    }
+
+    public function toAwsFormat(): array
+    {
+        return [
+            'AcceptRanges'              => $this->acceptRanges,
+            'Body'                      => $this->body,
+            'BucketKeyEnabled'          => $this->bucketKeyEnabled,
+            'CacheControl'              => $this->cacheControl,
+            'ChecksumCRC32'             => $this->checksumCRC32,
+            'ChecksumCRC32C'            => $this->checksumCRC32C,
+            'ChecksumCRC64NVME'         => $this->checksumCRC64NVME,
+            'ChecksumSHA1'              => $this->checksumSHA1,
+            'ChecksumSHA256'            => $this->checksumSHA256,
+            'ChecksumType'              => $this->checksumType,
+            'ContentDisposition'        => $this->contentDisposition,
+            'ContentEncoding'           => $this->contentEncoding,
+            'ContentLanguage'           => $this->contentLanguage,
+            'ContentLength'             => $this->contentLength,
+            'ContentRange'              => $this->contentRange,
+            'ContentType'               => $this->contentType,
+            'DeleteMarker'              => $this->deleteMarker,
+            'ETag'                      => $this->eTag,
+            'Expiration'                => $this->expiration,
+            'Expires'                   => $this->expires,
+            'ExpiresString'             => $this->expiresString,
+            'LastModified'              => $this->lastModified,
+            'Metadata'                  => $this->metadata,
+            'MissingMeta'               => $this->missingMeta,
+            'ObjectLockLegalHoldStatus' => $this->objectLockLegalHoldStatus,
+            'ObjectLockMode'            => $this->objectLockMode,
+            'ObjectLockRetainUntilDate' => $this->objectLockRetainUntilDate,
+            'PartsCount'                => $this->partsCount,
+            'ReplicationStatus'         => $this->replicationStatus,
+            'RequestCharged'            => $this->requestCharged,
+            'Restore'                   => $this->restore,
+            'SSECustomerAlgorithm'      => $this->sSECustomerAlgorithm,
+            'SSECustomerKeyMD5'         => $this->sSECustomerKeyMD5,
+            'SSEKMSKeyId'               => $this->sSEKMSKeyId,
+            'ServerSideEncryption'      => $this->serverSideEncryption,
+            'StorageClass'              => $this->storageClass,
+            'TagCount'                  => $this->tagCount,
+            'VersionId'                 => $this->versionId,
+            'WebsiteRedirectLocation'   => $this->websiteRedirectLocation,
+        ];
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toAwsFormat();
+    }
+}
+
+/*
+[
+    'AcceptRanges' => '<string>',
+    'Body' => <string || resource || Psr\Http\Message\StreamInterface>,
+    'BucketKeyEnabled' => true || false,
+    'CacheControl' => '<string>',
+    'ChecksumCRC32' => '<string>',
+    'ChecksumCRC32C' => '<string>',
+    'ChecksumCRC64NVME' => '<string>',
+    'ChecksumSHA1' => '<string>',
+    'ChecksumSHA256' => '<string>',
+    'ChecksumType' => 'COMPOSITE|FULL_OBJECT',
+    'ContentDisposition' => '<string>',
+    'ContentEncoding' => '<string>',
+    'ContentLanguage' => '<string>',
+    'ContentLength' => <integer>,
+    'ContentRange' => '<string>',
+    'ContentType' => '<string>',
+    'DeleteMarker' => true || false,
+    'ETag' => '<string>',
+    'Expiration' => '<string>',
+    'Expires' => <DateTime>,
+    'ExpiresString' => '<string>',
+    'LastModified' => <DateTime>,
+    'Metadata' => ['<string>', ...],
+    'MissingMeta' => <integer>,
+    'ObjectLockLegalHoldStatus' => 'ON|OFF',
+    'ObjectLockMode' => 'GOVERNANCE|COMPLIANCE',
+    'ObjectLockRetainUntilDate' => <DateTime>,
+    'PartsCount' => <integer>,
+    'ReplicationStatus' => 'COMPLETE|PENDING|FAILED|REPLICA|COMPLETED',
+    'RequestCharged' => 'requester',
+    'Restore' => '<string>',
+    'SSECustomerAlgorithm' => '<string>',
+    'SSECustomerKeyMD5' => '<string>',
+    'SSEKMSKeyId' => '<string>',
+    'ServerSideEncryption' => 'AES256|aws:fsx|aws:kms|aws:kms:dsse',
+    'StorageClass' => 'STANDARD|REDUCED_REDUNDANCY|STANDARD_IA|ONEZONE_IA|INTELLIGENT_TIERING|GLACIER|DEEP_ARCHIVE|OUTPOSTS|GLACIER_IR|SNOW|EXPRESS_ONEZONE|FSX_OPENZFS|FSX_ONTAP',
+    'TagCount' => <integer>,
+    'VersionId' => '<string>',
+    'WebsiteRedirectLocation' => '<string>',
+]
+
+*/

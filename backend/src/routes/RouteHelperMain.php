@@ -24,7 +24,7 @@ class RouteHelperMain implements RouteHelper
             $awsc = $awsc->cloneWithLoginAt(new \DateTimeImmutable('now'));
 
             $data = [
-                'app'            => 'Sobo Storeman',
+                'app'            => Settings::getAppName(),
                 'version'        => Settings::getAppVersion(),
                 'is_playground'  => true,
                 'php_version_id' => PHP_VERSION_ID,

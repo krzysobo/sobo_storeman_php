@@ -91,3 +91,83 @@ Future:
 
 - adding guzzlehttp/psr7
     composer require guzzlehttp/psr7
+
+
+TODO as of 06.03.2026 (0.0.4):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now/Soon:
+- AWS (in progress)
+    - what is done: 
+        -- login/check login data via variables 
+        -- S3: bucket list, bucket objects
+    - what to do:
+        -- auth methods - FURTHER FUTURE:
+            https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv-authentication-methods.html       
+            https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html     
+            --- using parameters stored in the DB (encrypted)
+            --- using parameters from a file on the backend storage
+            --- using the assumed roles managed from the server within the cloud;
+            --- !!! all of the above require strong authentication to the backend itself,
+            and thus, storing users. This way, Storeman becomes a "service provider" to access AWS services (like S3, SQS etc), which can be useful for multiple purposes, such as 
+            running a centralized ecosystem for company's Intranet, HR system, CRM, ERP, etc.
+        -- S3: 
+            OBJECTS:
+            --- object upload (putObject), 
+            --- object download
+            --- object delete
+            --- object rename
+            --- copy object between buckets in one connection
+            --- move objects between buckets in one connection
+
+            BUCKETS:
+            --- create a new bucket
+            --- delete bucket
+            --- download whole bucket
+            --- rename bucket
+
+        -- SQS:
+            -- handle queues
+            -- handle messages
+        -- DynamoDB:
+            -- handle everything, but this will be later
+
+
+- frontend in Angular (in progress) and probably some mobile/desktop apps in Rust/Kotlin, etc
+    - what is done: just the basic project setup only (Angular), no content
+    - what to do: EVERYTHING :)
+        -- login page
+        -- established connection page (multiple connections in separate tabs)
+            --- S3 bucket list
+                ACTIONS:                 
+                    ---- VIEW (just list) with sorting and filtering (
+                            locally in the frontend only, whole bucket is downloaded first)
+                    ---- DELETE whole bucket
+                    ---- DOWNLOAD the whole bucket
+                    ---- RENAME whole bucket
+                    ---- CREATE a new bucket
+            --- S3 selected bucket contents
+                ACTIONS:
+                    VIEW (just list) with sorting and filtering
+                    ---- DELETE one or more objects (multiple selection)
+                    ---- DOWNLOAD one object or more objects (ZIPped/TARred)
+                    ---- OPEN/VIEW object in the frontend if possible
+                    ---- UPLOAD one or more objects
+                    ---- COPY object to another bucket (with multiple buckets on the screen)
+                    ---- MOVE object to another bucket (with multiple buckets on the screen)
+
+
+- OpenAPI/Swagger for all endpoints (planned)
+- tests - done: unit tests for AwsClientHelper, AwsCredentialsHelper and JwtHelper
+- tests: (planned)
+    - unit tests: ResponseHelper
+    - integration tests for all endpoints
+
+
+Farther Future (Plans):
+- AWS: SQS, DynamoDB
+- cli (for commands)  (planned)
+- ncurses interface (just because of love for retro "commander-type" software :)) (planned)
+- Google Drive (planned)
+- Dropbox (planned)
+- Nextcloud (planned)
