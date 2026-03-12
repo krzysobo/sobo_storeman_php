@@ -47,14 +47,14 @@ final readonly class AwsS3ObjectDeleteParams implements \JsonSerializable
         return new self(
             bucket: $object['Bucket'],
             key: $object['Key'],
-            bypassGovernanceRetention: $object['BypassGovernanceRetention'],
-            expectedBucketOwner: $object['ExpectedBucketOwner'],
-            ifMatch: $object['IfMatch'],
-            ifMatchLastModifiedTime: $object['IfMatchLastModifiedTime'],
-            ifMatchSize: $object['IfMatchSize'],
-            mFA: $object['MFA'],
-            requestPayer: $object['RequestPayer'],
-            versionId: $object['VersionId'],
+            bypassGovernanceRetention: $object['BypassGovernanceRetention'] ?? null,
+            expectedBucketOwner: $object['ExpectedBucketOwner'] ?? null,
+            ifMatch: $object['IfMatch'] ?? null,
+            ifMatchLastModifiedTime: $object['IfMatchLastModifiedTime'] ?? null,
+            ifMatchSize: $object['IfMatchSize'] ?? null,
+            mFA: $object['MFA'] ?? null,
+            requestPayer: $object['RequestPayer'] ?? null,
+            versionId: $object['VersionId'] ?? null,
         );
     }
 

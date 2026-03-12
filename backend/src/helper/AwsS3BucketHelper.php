@@ -56,8 +56,8 @@ class AwsS3BucketHelper
         string $bucketName,
         ?AwsS3BucketCreateParams $params = null,
     ): AwsS3BucketCreateResult {
-        $params   = ($params === null) ? new AwsS3BucketCreateParams($bucketName)
-            : $params = $params->cloneWithNewBucket($bucketName);
+        $params = ($params === null) ? new AwsS3BucketCreateParams($bucketName)
+            : $params->cloneWithNewBucket($bucketName);
 
         $result = $s3Client->createBucket($params->toAwsFormat());
 

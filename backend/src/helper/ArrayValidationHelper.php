@@ -16,7 +16,6 @@ class ArrayValidationHelper
     }
 
     /**
-     * Summary of getValueByKeyOrThrow
      * @throws InvalidDataException
      */
     public function getStringValueByKeyOrThrow($needle, array $haystack, bool $throwOnEmpty = true): string
@@ -26,6 +25,23 @@ class ArrayValidationHelper
         }
 
         $value = trim($haystack[$needle] ?? "");
+        if (($throwOnEmpty) && (empty($value))) {
+            throw new InvalidDataException("value for key $needle is required.");
+        }
+
+        return $value;
+    }
+
+    /**
+     * @throws InvalidDataException
+     */
+    public function getArrayByKeyOrThrow($needle, array $haystack, bool $throwOnEmpty = true): array
+    {
+        if (! \array_key_exists($needle, $haystack)) {
+            throw new InvalidDataException("key $needle doesn't exist");
+        }
+
+        $value = $haystack[$needle] ?? [];
         if (($throwOnEmpty) && (empty($value))) {
             throw new InvalidDataException("value for key $needle is required.");
         }

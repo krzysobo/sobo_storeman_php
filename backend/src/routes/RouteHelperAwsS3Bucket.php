@@ -34,7 +34,7 @@ class RouteHelperAwsS3Bucket extends RouteHelperAwsS3
             $s3Client = self::getS3ClientFromRequest($request);
 
             $validator  = ArrayValidationHelper::create();
-            $body       = $request->getParsedBody() ?? [];
+            $body       = $this->getRequestBody($request);
             $bucketName = $validator->getStringValueByKeyOrThrow("bucket_name", $body);
             $result     = AwsS3BucketHelper::createBucket($s3Client, $bucketName, null);
 
@@ -44,9 +44,9 @@ class RouteHelperAwsS3Bucket extends RouteHelperAwsS3
         $app->delete('/aws/s3/bucket/delete', function (Request $request, Response $response) {
             $validator = ArrayValidationHelper::create();
 
-            $body     = $request->getParsedBody() ?? [];
-            $creds    = $request->getAttribute('aws_creds'); // Already AwsCredentials object
-            $s3Client = AwsClientHelper::getS3ClientWithAwsCredentials($creds);
+            $body       = $this->getRequestBody($request);
+            $creds      = $request->getAttribute('aws_creds'); // Already AwsCredentials object
+            $s3Client   = AwsClientHelper::getS3ClientWithAwsCredentials($creds);
             $bucketName = $validator->getStringValueByKeyOrThrow("bucket_name", $body);
             $result     = AwsS3BucketHelper::createBucket($s3Client, $bucketName, null);
 
