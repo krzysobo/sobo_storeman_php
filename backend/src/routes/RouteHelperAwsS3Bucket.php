@@ -4,6 +4,7 @@ namespace App\Routes;
 use App\Helper\ArrayValidationHelper;
 use App\Helper\AwsClientHelper;
 use App\Helper\AwsS3BucketHelper;
+use App\Helper\AwsS3ObjectHelper;
 use App\Http\ResponseHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -11,25 +12,27 @@ use Slim\App;
 
 class RouteHelperAwsS3Bucket extends RouteHelperAwsS3
 {
-
-    public static function addRoutesToApp(App $app)
-    {
+    private static function addGetBucketObjects(App $app) {
         $app->get('/aws/s3/bucket/get/{bucket_name}', function (Request $request, Response $response, array $args) {
             $s3Client   = self::getS3ClientFromRequest($request);
             $validator  = ArrayValidationHelper::create();
             $bucketName = $validator->getStringValueByKeyOrThrow("bucket_name", $this->getRequestBody($request));
-            $result     = AwsS3BucketHelper::getObjectsForBucket($s3Client, $bucketName);
+            $result     = AwsS3ObjectHelper::getObjectsForBucket($s3Client, $bucketName);
 
             return ResponseHelper::jsonResponse($response, $result, 200);
         });
+    }
 
+    private static function addBucketList(App $app) {
         $app->get('/aws/s3/bucket/list', function (Request $request, Response $response) {
             $s3Client = self::getS3ClientFromRequest($request);
             $result   = AwsS3BucketHelper::getBucketsList($s3Client);
 
             return ResponseHelper::jsonResponse($response, $result, 200);
         });
+    }
 
+    private static function addBucketCreate(App $app) {
         $app->post('/aws/s3/bucket/create', function (Request $request, Response $response) {
             $s3Client = self::getS3ClientFromRequest($request);
 
@@ -40,7 +43,9 @@ class RouteHelperAwsS3Bucket extends RouteHelperAwsS3
 
             return ResponseHelper::jsonResponse($response, $result, 200);
         });
+    }
 
+    private static function addBucketDelete(App $app) {
         $app->delete('/aws/s3/bucket/delete', function (Request $request, Response $response) {
             $validator = ArrayValidationHelper::create();
 
@@ -52,6 +57,13 @@ class RouteHelperAwsS3Bucket extends RouteHelperAwsS3
 
             return ResponseHelper::jsonResponse($response, $result, 200);
         });
+    }
 
+    public static function addRoutesToApp(App $app)
+    {
+        self::addGetBucketObjects($app);
+        self::addBucketList($app);
+        self::addBucketCreate($app);
+        self::addBucketDelete($app);
     }
 }

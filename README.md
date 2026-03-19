@@ -22,78 +22,7 @@ Technological stack:
 - Angular 18                    https://angular.dev/
 
 
-
-TODO as of 24.02.2026 (0.0.1):
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Now/Soon:
-- AWS (in progress)
-- frontend in Angular (in progress)
-
-- OpenAPI/Swagger for all endpoints (planned)
-- tests: (planned)
-    - unit tests for AwsHelper, JwtHelper and ResponseHelper
-    - integration tests for all endpoints
-
-Future:
-- cli (for commands)  (planned)
-- ncurses interface (just because of love for retro "commander-type" software :)) (planned)
-- Google Drive (planned)
-- Dropbox (planned)
-- Nextcloud (planned)
-
-
-27.02.2026 (0.0.2):
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- AwsHelper split into smaller classes
-- CloneWithProps trait created, for cloning a PHP object while updating some properties; for compatibility between 8.5.x and <8.5.x
-- AwsCredentials DTO used instead of arrays
-
-- adding php-parallel-lint
-    composer require --dev php-parallel-lint/php-parallel-lint
-
-(XX-removed to install phpunit ^11) - adding pretty-php (code cleaner)
-
-(XX-removed after installing php-cs-fixer) - adding php_codesniffer
-    composer require --dev squizlabs/php_codesniffer
-
-    
-
-
-27.02.2026 (0.0.3):
-~~~~~~~~~~~~~~~~~~~~~~~~
-- removal of pretty-php because it conflicts with phpunit ^11
-
-- removal of php_codesniffer, since it is no longer needed with php-cs-fixer
-
-- installing PHPUnit 11 (for PHP 8.4+)
-    composer require --dev phpunit/phpunit ^11 
-
-- installing php-cs-fixer as both a linter and a fixer, to be used INSTEAD pretty-php and php_codesniffer
-    composer require --dev friendsofphp/php-cs-fixer:^3
-
-- tests...
-
-
-03.03.2026 (0.0.4):
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- unit tests 
-- adding PHP-DI - just starting now...
-    composer require php-di/slim-bridge
-
-        https://php-di.org/doc/frameworks/slim.html
-
-
-- adding nyholm/psr7
-    composer require nyholm/psr7
-
-- adding guzzlehttp/psr7
-    composer require guzzlehttp/psr7
-
-
-TODO as of 06.03.2026 (0.0.4):
+TODO as of 06.03.2026 (0.0.4) and 19.03.2026 (0.0.4)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now/Soon:
@@ -113,12 +42,12 @@ Now/Soon:
             running a centralized ecosystem for company's Intranet, HR system, CRM, ERP, etc.
         -- S3: 
             OBJECTS:
-            --- object upload (putObject), 
-            --- object download
+            --- object upload (putObject) from file path and file body 
+            --- object download (getObject)
             --- object delete
+            --- object copy (between buckets and in the same bucket)
             --- object rename
-            --- copy object between buckets in one connection
-            --- move objects between buckets in one connection
+            --- move objects (a separate endpoint is unnecessary, since it is just copy + delete )
 
             BUCKETS:
             --- create a new bucket
@@ -126,14 +55,10 @@ Now/Soon:
             --- download whole bucket
             --- rename bucket
 
-        -- SQS:
-            -- handle queues
-            -- handle messages
-        -- DynamoDB:
-            -- handle everything, but this will be later
 
+- frontend in Rust with either Cranpose or Makepad, both for Web, Desktop and, later, Mobile
 
-- frontend in Angular (in progress) and probably some mobile/desktop apps in Rust/Kotlin, etc
+- frontend in Angular (in progress)
     - what is done: just the basic project setup only (Angular), no content
     - what to do: EVERYTHING :)
         -- login page
@@ -157,11 +82,11 @@ Now/Soon:
                     ---- MOVE object to another bucket (with multiple buckets on the screen)
 
 
-- OpenAPI/Swagger for all endpoints (planned)
-- tests - done: unit tests for AwsClientHelper, AwsCredentialsHelper and JwtHelper
+(V?) - OpenAPI/Swagger for all endpoints (planned)
+(V?) - tests - done: unit tests for AwsClientHelper, AwsCredentialsHelper and JwtHelper, also AwsS3ObjectHelper and AwsS3BucketHelper
 - tests: (planned)
-    - unit tests: ResponseHelper
-    - integration tests for all endpoints
+    (XX) - unit tests: ResponseHelper
+    (V?) - integration tests for all endpoints
 
 
 Farther Future (Plans):
@@ -171,3 +96,84 @@ Farther Future (Plans):
 - Google Drive (planned)
 - Dropbox (planned)
 - Nextcloud (planned)
+
+
+
+03.03.2026 (0.0.4):
+~~~~~~~~~~~~~~~~~~~~~~~~
+- unit tests 
+- adding PHP-DI - just starting now...
+    composer require php-di/slim-bridge
+
+        https://php-di.org/doc/frameworks/slim.html
+
+
+- adding nyholm/psr7
+    composer require nyholm/psr7
+
+- adding guzzlehttp/psr7
+    composer require guzzlehttp/psr7
+
+
+
+27.02.2026 (0.0.3):
+~~~~~~~~~~~~~~~~~~~~~~~~
+- removal of pretty-php because it conflicts with phpunit ^11
+
+- removal of php_codesniffer, since it is no longer needed with php-cs-fixer
+
+- installing PHPUnit 11 (for PHP 8.4+)
+    composer require --dev phpunit/phpunit ^11 
+
+- installing php-cs-fixer as both a linter and a fixer, to be used INSTEAD pretty-php and php_codesniffer
+    composer require --dev friendsofphp/php-cs-fixer:^3
+
+- tests...
+
+
+
+27.02.2026 (0.0.2):
+~~~~~~~~~~~~~~~~~~~~~~~~
+- AwsHelper split into smaller classes
+- CloneWithProps trait created, for cloning a PHP object while updating some properties; for compatibility between 8.5.x and <8.5.x
+- AwsCredentials DTO used instead of arrays
+
+- adding php-parallel-lint
+    composer require --dev php-parallel-lint/php-parallel-lint
+
+(XX-removed to install phpunit ^11) - adding pretty-php (code cleaner)
+
+(XX-removed after installing php-cs-fixer) - adding php_codesniffer
+    composer require --dev squizlabs/php_codesniffer
+
+
+
+TODO as of 24.02.2026 (0.0.1):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Now/Soon:
+- AWS (in progress)
+- frontend in Angular (in progress)
+
+- OpenAPI/Swagger for all endpoints (planned)
+- tests: (planned)
+    - unit tests for AwsHelper, JwtHelper and ResponseHelper
+    - integration tests for all endpoints
+
+
+===========================================================================
+===========================================================================
+
+
+TODO - Future:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- cli (for commands)  (planned)
+- ncurses interface (just because of love for retro "commander-type" software :)) (planned)
+- Google Drive (planned)
+- Dropbox (planned)
+- Nextcloud (planned)
+
+-- SQS:
+    -- handle queues
+    -- handle messages
+-- DynamoDB:
+    -- handle everything, but this will be later

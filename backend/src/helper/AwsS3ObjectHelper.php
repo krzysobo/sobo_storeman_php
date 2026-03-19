@@ -9,9 +9,15 @@ use App\Dto\AwsS3ObjectDeleteResult;
 use App\Dto\AwsS3ObjectGetParams;
 use App\Dto\AwsS3ObjectGetResult;
 use App\Dto\AwsS3ObjectListParams;
+use App\Dto\AwsS3ObjectPutParams;
+use App\Dto\AwsS3ObjectPutResult;
 use App\Dto\AwsS3ObjectsDeleteParams;
 use App\Dto\AwsS3ObjectsDeleteResult;
+use App\Exceptions\FileNotFoundException;
+use App\Exceptions\InvalidDataException;
 use Aws\S3\S3Client;
+use Psr\Http\Message\StreamInterface;
+use resource; 
 
 class AwsS3ObjectHelper
 {
@@ -44,17 +50,56 @@ class AwsS3ObjectHelper
         return AwsS3ObjectGetResult::fromAwsFormat($result);
     }
 
-    public static function putObjectFromFilePath(S3Client $s3Client, string $bucketName, string $objectKey, string $filePath)
-    {
-        // TODO
-        // all params to get (we only use Bucket and Key) https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-s3-2006-03-01.html#putobject
+    public static function putObjectFromFilePath(
+        S3Client $s3Client,
+        string $bucketName,
+        string $objectKey,
+        string $filePath,
+        ?AwsS3ObjectPutParams $params = null
+    ): AwsS3ObjectPutResult {
+        // all params to use: https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-s3-2006-03-01.html#putobject
+        if (! file_exists($filePath)) {
+            throw new FileNotFoundException("File $filePath not found");
+        }
 
+        $params = ($params === null) ? new AwsS3ObjectPutParams($bucketName, $objectKey, sourceFile : $filePath)
+            : $params->cloneWithNewBucketKeySourceFile($bucketName, $objectKey, $filePath);
+        $args = $params->toAwsFormat();
+
+        $result = $s3Client->putObject($args);
+
+        return AwsS3ObjectPutResult::fromAwsFormat($result);
     }
 
-    public static function putObjectFromFileData(S3Client $s3Client, string $bucketName, string $objectKey, string $fileData)
-    {
-        // TODO
-        // all params to get (we only use Bucket and Key) https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-s3-2006-03-01.html#putobject
+    /**
+     * Summary of putObjectFromFileBody
+     * @param S3Client $s3Client
+     * @param string $bucketName
+     * @param string $objectKey
+     * @param string|resource|StreamInterface $fileBody
+     * @param mixed $params
+     * @throws InvalidDataException
+     * @return AwsS3ObjectDeleteResult
+     */
+    public static function putObjectFromFileBody(
+        S3Client $s3Client,
+        string $bucketName,
+        string $objectKey,
+        mixed $fileBody,
+        ?AwsS3ObjectPutParams $params = null
+    ): AwsS3ObjectPutResult {
+        // all params to use: https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-s3-2006-03-01.html#putobject
+        if (empty($fileBody)) {
+            throw new InvalidDataException("File body may not be empty.");
+        }
+
+        $params = ($params === null) ? new AwsS3ObjectPutParams($bucketName, $objectKey, body : $fileBody)
+            : $params->cloneWithNewBucketKeyBody($bucketName, $objectKey, $fileBody);
+        $args = $params->toAwsFormat();
+
+        $result = $s3Client->putObject($args);
+
+        return AwsS3ObjectPutResult::fromAwsFormat($result);
     }
 
     public static function copyObject(

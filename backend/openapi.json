@@ -1,0 +1,751 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sobo Storeman",
+    "description": "AWS S3 storage manager API. All /aws/s3/* routes require a Bearer JWT token obtained from POST /aws/login.",
+    "version": "0.0.4"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from POST /aws/login. Contains encrypted AWS credentials."
+      }
+    },
+    "schemas": {
+      "AppInfo": {
+        "type": "object",
+        "properties": {
+          "app":     { "type": "string", "example": "Sobo Storeman" },
+          "version": { "type": "string", "example": "0.0.4" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error":   { "type": "string" },
+          "message": { "type": "string" },
+          "code":    { "type": "string" }
+        },
+        "required": ["error"]
+      },
+      "AwsLoginRequest": {
+        "type": "object",
+        "required": ["access_key_id", "secret_access_key"],
+        "properties": {
+          "access_key_id": {
+            "type": "string",
+            "description": "AWS Access Key ID (also accepted as access_key)",
+            "example": "AKIAIOSFODNN7EXAMPLE"
+          },
+          "secret_access_key": {
+            "type": "string",
+            "description": "AWS Secret Access Key (also accepted as secret_key)",
+            "example": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          },
+          "session_token": {
+            "type": "string",
+            "description": "Optional STS session token — only for temporary credentials",
+            "example": "AQoXnyc4lcK4w"
+          },
+          "region": {
+            "type": "string",
+            "description": "AWS region (defaults to eu-north-1)",
+            "example": "eu-north-1"
+          },
+          "expires": {
+            "type": "string",
+            "description": "Optional credential expiry — ISO 8601 date/time or Unix timestamp",
+            "example": "2026-12-31T23:59:59Z"
+          }
+        }
+      },
+      "AwsLoginResponse": {
+        "type": "object",
+        "properties": {
+          "status":    { "type": "string", "example": "authenticated" },
+          "type":      { "type": "string", "enum": ["permanent", "temporary"], "example": "permanent" },
+          "expires":   { "type": "string", "example": "never (permanent — rotate regularly!)" },
+          "region":    { "type": "string", "example": "eu-north-1" },
+          "jwt_token": { "type": "string", "description": "Bearer token to use in Authorization header for all protected routes" }
+        }
+      },
+      "BucketNameRequest": {
+        "type": "object",
+        "required": ["bucket_name"],
+        "properties": {
+          "bucket_name": {
+            "type": "string",
+            "example": "my-bucket"
+          }
+        }
+      },
+      "BucketListBucket": {
+        "type": "object",
+        "properties": {
+          "BucketArn":    { "type": "string", "example": "arn:aws:s3:::my-bucket" },
+          "BucketRegion": { "type": "string", "example": "eu-north-1" },
+          "CreationDate": { "type": "string", "format": "date-time" },
+          "Name":         { "type": "string", "example": "my-bucket" }
+        }
+      },
+      "BucketListResult": {
+        "type": "object",
+        "properties": {
+          "Buckets": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BucketListBucket" }
+          },
+          "ContinuationToken": { "type": "string" },
+          "Owner": {
+            "type": "object",
+            "properties": {
+              "DisplayName": { "type": "string" },
+              "ID":          { "type": "string" }
+            }
+          },
+          "Prefix": { "type": "string" }
+        }
+      },
+      "BucketCreateResult": {
+        "type": "object",
+        "properties": {
+          "BucketArn": { "type": "string", "example": "arn:aws:s3:::my-new-bucket" },
+          "Location":  { "type": "string", "example": "/my-new-bucket" }
+        }
+      },
+      "ObjectInfoShort": {
+        "type": "object",
+        "description": "Object metadata as returned by ListObjectsV2",
+        "properties": {
+          "ChecksumAlgorithm": { "type": "string" },
+          "ChecksumType":      { "type": "string", "enum": ["COMPOSITE", "FULL_OBJECT"] },
+          "ETag":              { "type": "string", "example": "\"d41d8cd98f00b204e9800998ecf8427e\"" },
+          "Key":               { "type": "string", "example": "folder/file.txt" },
+          "LastModified":      { "type": "string", "format": "date-time" },
+          "Owner": {
+            "type": "object",
+            "properties": {
+              "DisplayName": { "type": "string" },
+              "ID":          { "type": "string" }
+            }
+          },
+          "RestoreStatus": {
+            "type": "object",
+            "properties": {
+              "IsRestoreInProgress": { "type": "boolean" },
+              "RestoreExpiryDate":   { "type": "string", "format": "date-time" }
+            }
+          },
+          "Size":         { "type": "integer", "example": 1024 },
+          "StorageClass": { "type": "string", "example": "STANDARD" }
+        }
+      },
+      "ListObjectsResult": {
+        "type": "object",
+        "properties": {
+          "CommonPrefixes":        { "type": "array", "items": { "type": "object" } },
+          "Contents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ObjectInfoShort" }
+          },
+          "ContinuationToken":     { "type": "string" },
+          "Delimiter":             { "type": "string" },
+          "EncodingType":          { "type": "string" },
+          "IsTruncated":           { "type": "boolean" },
+          "KeyCount":              { "type": "integer" },
+          "MaxKeys":               { "type": "integer" },
+          "Name":                  { "type": "string" },
+          "NextContinuationToken": { "type": "string" },
+          "Prefix":                { "type": "string" },
+          "RequestCharged":        { "type": "string" },
+          "StartAfter":            { "type": "string" }
+        }
+      },
+      "ObjectGetResult": {
+        "type": "object",
+        "description": "Full object metadata and body returned by GetObject",
+        "properties": {
+          "AcceptRanges":              { "type": "string" },
+          "Body":                      { "type": "string", "description": "Object body content" },
+          "BucketKeyEnabled":          { "type": "boolean" },
+          "CacheControl":              { "type": "string" },
+          "ChecksumCRC32":             { "type": "string" },
+          "ChecksumCRC32C":            { "type": "string" },
+          "ChecksumCRC64NVME":         { "type": "string" },
+          "ChecksumSHA1":              { "type": "string" },
+          "ChecksumSHA256":            { "type": "string" },
+          "ChecksumType":              { "type": "string" },
+          "ContentDisposition":        { "type": "string" },
+          "ContentEncoding":           { "type": "string" },
+          "ContentLanguage":           { "type": "string" },
+          "ContentLength":             { "type": "integer" },
+          "ContentRange":              { "type": "string" },
+          "ContentType":               { "type": "string" },
+          "DeleteMarker":              { "type": "boolean" },
+          "ETag":                      { "type": "string" },
+          "Expiration":                { "type": "string" },
+          "Expires":                   { "type": "string", "format": "date-time" },
+          "ExpiresString":             { "type": "string" },
+          "LastModified":              { "type": "string", "format": "date-time" },
+          "Metadata":                  { "type": "array", "items": { "type": "string" } },
+          "MissingMeta":               { "type": "integer" },
+          "ObjectLockLegalHoldStatus": { "type": "string", "enum": ["ON", "OFF"] },
+          "ObjectLockMode":            { "type": "string", "enum": ["GOVERNANCE", "COMPLIANCE"] },
+          "ObjectLockRetainUntilDate": { "type": "string", "format": "date-time" },
+          "PartsCount":                { "type": "integer" },
+          "ReplicationStatus":         { "type": "string" },
+          "RequestCharged":            { "type": "string" },
+          "Restore":                   { "type": "string" },
+          "SSECustomerAlgorithm":      { "type": "string" },
+          "SSECustomerKeyMD5":         { "type": "string" },
+          "SSEKMSKeyId":               { "type": "string" },
+          "ServerSideEncryption":      { "type": "string" },
+          "StorageClass":              { "type": "string" },
+          "TagCount":                  { "type": "integer" },
+          "VersionId":                 { "type": "string" },
+          "WebsiteRedirectLocation":   { "type": "string" }
+        }
+      },
+      "ObjectPutFromFilePathRequest": {
+        "type": "object",
+        "required": ["bucket_name", "object_key", "file_path"],
+        "properties": {
+          "bucket_name": { "type": "string", "example": "my-bucket" },
+          "object_key":  { "type": "string", "example": "folder/file.txt" },
+          "file_path":   { "type": "string", "description": "Absolute server-side file path", "example": "/var/data/upload.txt" }
+        }
+      },
+      "ObjectPutFromFileBodyRequest": {
+        "type": "object",
+        "required": ["bucket_name", "object_key", "file_body"],
+        "properties": {
+          "bucket_name": { "type": "string", "example": "my-bucket" },
+          "object_key":  { "type": "string", "example": "folder/file.txt" },
+          "file_body": {
+            "type": "string",
+            "format": "byte",
+            "description": "Base64-encoded file content",
+            "example": "SGVsbG8gV29ybGQ="
+          }
+        }
+      },
+      "ObjectPutResult": {
+        "type": "object",
+        "properties": {
+          "BucketKeyEnabled":       { "type": "boolean" },
+          "ChecksumCRC32":          { "type": "string" },
+          "ChecksumCRC32C":         { "type": "string" },
+          "ChecksumCRC64NVME":      { "type": "string" },
+          "ChecksumSHA1":           { "type": "string" },
+          "ChecksumSHA256":         { "type": "string" },
+          "ChecksumType":           { "type": "string", "enum": ["COMPOSITE", "FULL_OBJECT"] },
+          "ETag":                   { "type": "string", "example": "\"d41d8cd98f00b204e9800998ecf8427e\"" },
+          "Expiration":             { "type": "string" },
+          "ObjectURL":              { "type": "string", "example": "https://s3.amazonaws.com/my-bucket/file.txt" },
+          "RequestCharged":         { "type": "string" },
+          "SSECustomerAlgorithm":   { "type": "string" },
+          "SSECustomerKeyMD5":      { "type": "string" },
+          "SSEKMSEncryptionContext": { "type": "string" },
+          "SSEKMSKeyId":            { "type": "string" },
+          "ServerSideEncryption":   { "type": "string" },
+          "Size":                   { "type": "integer" },
+          "VersionId":              { "type": "string" }
+        }
+      },
+      "ObjectCopyRequest": {
+        "type": "object",
+        "required": ["bucket_name_src", "bucket_name_dst", "object_key_src", "object_key_dst"],
+        "properties": {
+          "bucket_name_src": { "type": "string", "example": "source-bucket" },
+          "bucket_name_dst": { "type": "string", "example": "dest-bucket" },
+          "object_key_src":  { "type": "string", "example": "folder/original.txt" },
+          "object_key_dst":  { "type": "string", "example": "folder/copy.txt" }
+        }
+      },
+      "ObjectCopyResult": {
+        "type": "object",
+        "properties": {
+          "BucketKeyEnabled": { "type": "boolean" },
+          "CopyObjectResult": {
+            "type": "object",
+            "properties": {
+              "ChecksumCRC32":     { "type": "string" },
+              "ChecksumCRC32C":    { "type": "string" },
+              "ChecksumCRC64NVME": { "type": "string" },
+              "ChecksumSHA1":      { "type": "string" },
+              "ChecksumSHA256":    { "type": "string" },
+              "ChecksumType":      { "type": "string" },
+              "ETag":              { "type": "string" },
+              "LastModified":      { "type": "string", "format": "date-time" }
+            }
+          },
+          "CopySourceVersionId":    { "type": "string" },
+          "Expiration":             { "type": "string" },
+          "ObjectURL":              { "type": "string" },
+          "RequestCharged":         { "type": "string" },
+          "SSECustomerAlgorithm":   { "type": "string" },
+          "SSECustomerKeyMD5":      { "type": "string" },
+          "SSEKMSEncryptionContext": { "type": "string" },
+          "SSEKMSKeyId":            { "type": "string" },
+          "ServerSideEncryption":   { "type": "string" },
+          "VersionId":              { "type": "string" }
+        }
+      },
+      "ObjectDeleteResult": {
+        "type": "object",
+        "properties": {
+          "DeleteMarker":  { "type": "boolean" },
+          "RequestCharged":{ "type": "string" },
+          "VersionId":     { "type": "string" }
+        }
+      },
+      "ObjectsDeleteRequest": {
+        "type": "object",
+        "required": ["object_keys"],
+        "properties": {
+          "object_keys": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["folder/file1.txt", "folder/file2.txt"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid JWT token",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "error": "Missing or invalid token" }
+          }
+        }
+      },
+      "UnprocessableEntity": {
+        "description": "Missing or invalid request body field",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "error": "key bucket_name doesn't exist" }
+          }
+        }
+      }
+    }
+  },
+  "security": [],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Health check / app info",
+        "operationId": "getRoot",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "description": "App name and version",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppInfo" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/play": {
+      "get": {
+        "summary": "Playground endpoint — returns extended debug/test data",
+        "operationId": "getPlay",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "description": "Playground data including PHP version and a sample AwsCredentials object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "app":            { "type": "string" },
+                    "version":        { "type": "string" },
+                    "is_playground":  { "type": "boolean" },
+                    "php_version_id": { "type": "integer" },
+                    "phpversion()":   { "type": "string" },
+                    "playground":     { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aws/login": {
+      "post": {
+        "summary": "Authenticate with AWS credentials and receive a JWT token",
+        "description": "Validates the supplied AWS credentials by performing a lightweight ListBuckets call. On success, returns a JWT token that encodes the credentials (encrypted). This token must be passed as a Bearer token in the Authorization header for all /aws/s3/* routes.",
+        "operationId": "awsLogin",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AwsLoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AwsLoginResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing access_key_id or secret_access_key",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid AWS credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "419": {
+            "description": "AWS credentials or STS token have expired",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aws/s3/bucket/list": {
+      "get": {
+        "summary": "List all S3 buckets",
+        "operationId": "listBuckets",
+        "tags": ["S3 Buckets"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of buckets owned by the authenticated AWS account",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BucketListResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/aws/s3/bucket/get/{bucket_name}": {
+      "get": {
+        "summary": "List objects inside a bucket",
+        "operationId": "getBucketObjects",
+        "tags": ["S3 Buckets"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "bucket_name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "my-bucket"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Objects in the bucket",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListObjectsResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/bucket/create": {
+      "post": {
+        "summary": "Create a new S3 bucket",
+        "operationId": "createBucket",
+        "tags": ["S3 Buckets"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BucketNameRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bucket created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BucketCreateResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/bucket/delete": {
+      "delete": {
+        "summary": "Delete an S3 bucket",
+        "description": "Deletes the named S3 bucket. The bucket must be empty before it can be deleted.",
+        "operationId": "deleteBucket",
+        "tags": ["S3 Buckets"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BucketNameRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bucket deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BucketCreateResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/get/{bucket_name}/{object_key}": {
+      "get": {
+        "summary": "Get (download) an object from S3",
+        "operationId": "getObject",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "bucket_name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "my-bucket"
+          },
+          {
+            "name": "object_key",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "folder/file.txt"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object metadata and body",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ObjectGetResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/copy": {
+      "post": {
+        "summary": "Copy an object between buckets or within a bucket",
+        "operationId": "copyObject",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ObjectCopyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object copied successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ObjectCopyResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/put/file-path": {
+      "post": {
+        "summary": "Upload an object to S3 from a server-side file path",
+        "description": "Reads the file at the given server-side path and uploads it to the specified bucket/key.",
+        "operationId": "putObjectFromFilePath",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ObjectPutFromFilePathRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ObjectPutResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/put/file-body": {
+      "post": {
+        "summary": "Upload an object to S3 from a base64-encoded body",
+        "description": "Accepts a base64-encoded file body and uploads the decoded bytes to the specified bucket/key.",
+        "operationId": "putObjectFromFileBody",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ObjectPutFromFileBodyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ObjectPutResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/delete/{bucket_name}/{object_key}": {
+      "delete": {
+        "summary": "Delete a single object from S3",
+        "description": "Deletes the object and returns the updated list of objects remaining in the bucket.",
+        "operationId": "deleteObject",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "bucket_name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "my-bucket"
+          },
+          {
+            "name": "object_key",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "folder/file.txt"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object deleted; returns updated bucket object listing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListObjectsResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/aws/s3/object/delete-multiple/{bucket_name}": {
+      "delete": {
+        "summary": "Delete multiple objects from a bucket in one call",
+        "description": "Deletes all listed object keys and returns the updated bucket object listing.",
+        "operationId": "deleteMultipleObjects",
+        "tags": ["S3 Objects"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "bucket_name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "my-bucket"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ObjectsDeleteRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Objects deleted; returns updated bucket object listing",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListObjectsResult" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    }
+  }
+}
