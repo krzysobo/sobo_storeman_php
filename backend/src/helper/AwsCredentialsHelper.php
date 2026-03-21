@@ -70,8 +70,8 @@ class AwsCredentialsHelper
     public static function getAwsCredentialsFromToken(string $token): AwsCredentials
     {
         $jwtHelper = self::getJwtHelperForAws();
-
         $decodedToken = $jwtHelper->getDecryptedTokenData($token);
+        
         if ((null === $decodedToken) || (empty($decodedToken))) {
             throw new \RuntimeException('Incorrect JWT token - AWS credentials not found.');
         }

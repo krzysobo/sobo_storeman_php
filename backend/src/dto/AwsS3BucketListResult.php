@@ -29,10 +29,10 @@ final readonly class AwsS3BucketListResult implements \JsonSerializable
         // ]
 
         public array $buckets,            // 'Buckets'
-        public string $continuationToken, // 'ContinuationToken'
-        public string $ownerDisplayName,  // 'Owner' => ['DisplayName' => '<string>', 'ID' => '<string>']
-        public string $ownerId,           // 'Owner' => ['DisplayName' => '<string>', 'ID' => '<string>']
-        public string $prefix,            // 'Prefix' => '<string>',
+        public ?string $continuationToken, // 'ContinuationToken'
+        public ?string $ownerDisplayName,  // 'Owner' => ['DisplayName' => '<string>', 'ID' => '<string>']
+        public ?string $ownerId,           // 'Owner' => ['DisplayName' => '<string>', 'ID' => '<string>']
+        public ?string $prefix,            // 'Prefix' => '<string>',
     ) {}
 
     public static function fromAwsFormat(\Aws\Result | array $object): self

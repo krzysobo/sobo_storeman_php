@@ -33,26 +33,26 @@ final readonly class AwsS3ObjectCopyResult implements \JsonSerializable
                 'VersionId' => '<string>',
             ]
         */
-        public bool $bucketKeyEnabled,                    // 'BucketKeyEnabled' => true || false,
+        public ?bool $bucketKeyEnabled,                    // 'BucketKeyEnabled' => true || false,
                                                           // 'CopyObjectResult' => [
-        public string $copyObjectResultChecksumCRC32,     //     'ChecksumCRC32' => '<string>',
-        public string $copyObjectResultChecksumCRC32C,    //     'ChecksumCRC32C' => '<string>',
-        public string $copyObjectResultChecksumCRC64NVME, //     'ChecksumCRC64NVME' => '<string>',
-        public string $copyObjectResultChecksumSHA1,      //     'ChecksumSHA1' => '<string>',
-        public string $copyObjectResultChecksumSHA256,    //     'ChecksumSHA256' => '<string>',
-        public string $copyObjectResultChecksumType,      //     'ChecksumType' => 'COMPOSITE|FULL_OBJECT',
-        public string $copyObjectResultETag,              //     'ETag' => '<string>',
-        public \DateTime $copyObjectResultLastModified,   //     'LastModified' => <DateTime>, ]
-        public string $copySourceVersionId,               // 'CopySourceVersionId' => '<string>',
-        public string $expiration,                        // 'Expiration' => '<string>',
-        public string $objectURL,                         // 'ObjectURL' => '<string>',
-        public string $requestCharged,                    // 'RequestCharged' => 'requester',
-        public string $sSECustomerAlgorithm,              // 'SSECustomerAlgorithm' => '<string>',
-        public string $sSECustomerKeyMD5,                 // 'SSECustomerKeyMD5' => '<string>',
-        public string $sSEKMSEncryptionContext,           // 'SSEKMSEncryptionContext' => '<string>',
-        public string $sSEKMSKeyId,                       // 'SSEKMSKeyId' => '<string>',
-        public string $serverSideEncryption,              // 'ServerSideEncryption' => 'AES256|aws:fsx|aws:kms|aws:kms:dsse',
-        public string $versionId,                         // 'VersionId' => '<string>',
+        public ?string $copyObjectResultChecksumCRC32,     //     'ChecksumCRC32' => '<string>',
+        public ?string $copyObjectResultChecksumCRC32C,    //     'ChecksumCRC32C' => '<string>',
+        public ?string $copyObjectResultChecksumCRC64NVME, //     'ChecksumCRC64NVME' => '<string>',
+        public ?string $copyObjectResultChecksumSHA1,      //     'ChecksumSHA1' => '<string>',
+        public ?string $copyObjectResultChecksumSHA256,    //     'ChecksumSHA256' => '<string>',
+        public ?string $copyObjectResultChecksumType,      //     'ChecksumType' => 'COMPOSITE|FULL_OBJECT',
+        public ?string $copyObjectResultETag,              //     'ETag' => '<string>',
+        public ?\DateTime $copyObjectResultLastModified,   //     'LastModified' => <DateTime>, ]
+        public ?string $copySourceVersionId,               // 'CopySourceVersionId' => '<string>',
+        public ?string $expiration,                        // 'Expiration' => '<string>',
+        public ?string $objectURL,                         // 'ObjectURL' => '<string>',
+        public ?string $requestCharged,                    // 'RequestCharged' => 'requester',
+        public ?string $sSECustomerAlgorithm,              // 'SSECustomerAlgorithm' => '<string>',
+        public ?string $sSECustomerKeyMD5,                 // 'SSECustomerKeyMD5' => '<string>',
+        public ?string $sSEKMSEncryptionContext,           // 'SSEKMSEncryptionContext' => '<string>',
+        public ?string $sSEKMSKeyId,                       // 'SSEKMSKeyId' => '<string>',
+        public ?string $serverSideEncryption,              // 'ServerSideEncryption' => 'AES256|aws:fsx|aws:kms|aws:kms:dsse',
+        public ?string $versionId,                         // 'VersionId' => '<string>',
     ) {}
 
     public static function fromAwsFormat(\Aws\Result  | array $object): self

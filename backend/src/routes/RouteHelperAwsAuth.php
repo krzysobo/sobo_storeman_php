@@ -7,15 +7,56 @@ use App\Helper\AwsCredentialsHelper;
 use App\Http\ResponseHelper;
 use App\Settings\Settings;
 use Aws\Exception\AwsException;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use Slim\Routing\RouteCollectorProxy;
+use Slim\Routing\RouteGroup;
 
 class RouteHelperAwsAuth implements RouteHelper
 {
-    public static function addRoutesToApp(App $app)
+    #[OA\Post(
+        path: '/aws/login',
+        summary: 'Authenticate with AWS credentials and receive a JWT token',
+        description: 'Validates the supplied AWS credentials by performing a lightweight ListBuckets call. On success, returns a JWT token that encodes the credentials (encrypted). This token must be passed as a Bearer token in the Authorization header for all /aws/s3/* routes.',
+        operationId: 'awsLogin',
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/AwsLoginRequest'),
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authentication successful',
+                content: new OA\JsonContent(ref: '#/components/schemas/AwsLoginResponse'),
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Missing access_key_id or secret_access_key',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'),
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Invalid AWS credentials',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'),
+            ),
+            new OA\Response(
+                response: 419,
+                description: 'AWS credentials or STS token have expired',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'),
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Unexpected server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'),
+            ),
+        ],
+    )]
+    public static function addRoutesTo(mixed $app)
     {
-        $app->post('/aws/login', function (Request $request, Response $response) {
+        $app->post('/login', function (Request $request, Response $response) {
             $body = $request->getParsedBody() ?? [];
 
             $accessKey    = trim($body['access_key_id'] ?? $body['access_key'] ?? '');
@@ -23,6 +64,7 @@ class RouteHelperAwsAuth implements RouteHelper
             $sessionToken = trim($body['session_token'] ?? ''); // optional, used for temp credentials ONLY
             $region       = trim($body['region'] ?? Settings::DEFAULT_REGION);
             $expiresIn    = ! empty($body['expires']) ? strtotime($body['expires']) : null; // optional ISO or timestamp
+            $expiresInStr    = ! empty($body['expires']) ? $body['expires'] : null; // optional ISO or timestamp
 
             if (empty($accessKey) || empty($secretKey)) {
                 return ResponseHelper::jsonResponse($response, [
@@ -43,13 +85,13 @@ class RouteHelperAwsAuth implements RouteHelper
                 // if invalid/expired/malformed, exception will be thrown; if this passes, it means the credentials work,
                 // and we can safely store them in SESSION.
                 $testS3Client->listBuckets();
-
+                $expiresInDtIm = ($expiresInStr !== null)? new \DateTimeImmutable($expiresInStr): null;
                 $creds = AwsCredentials::fromArgsList(
                     $accessKey,
                     $secretKey,
                     $sessionToken,
                     $region,
-                    $expiresIn,
+                    $expiresInDtIm,
                     new \DateTimeImmutable()
                 );
                 $jwtToken = AwsCredentialsHelper::storeAwsCredentialsAsToken($creds);

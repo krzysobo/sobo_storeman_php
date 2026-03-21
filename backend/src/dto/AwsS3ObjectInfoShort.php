@@ -10,17 +10,17 @@ final readonly class AwsS3ObjectInfoShort implements \JsonSerializable
     use CloneWithProps;
 
     public function __construct(
-        public string $checksumAlgorithm,       // ['<string>', ...],
-        public string $checksumType,            // 'COMPOSITE|FULL_OBJECT',
-        public string $eTag,                    // '<string>',
-        public string $key,                     // '<string>',
-        public string $lastModified,            // <DateTime>,
-        public string $ownerDisplayName,        //   Owner' => ['DisplayName' => '<string>', 'ID' => '<string>'],
-        public string $ownerId,                 //   Owner' => ['DisplayName' => '<string>', 'ID' => '<string>'],
-        public bool $isRestoreStatusInProgress, // 'RestoreStatus' => ['IsRestoreInProgress' => true || false, 'RestoreExpiryDate'   =>  < DateTime > ,],
-        public \DateTime $restoreExpiryDate,
-        public int $size,           //       'Size'         =>  < integer > ,
-        public string $storageClass //  'StorageClass' => 'STANDARD|REDUCED_REDUNDANCY|GLACIER|STANDARD_IA|ONEZONE_IA|INTELLIGENT_TIERING|DEEP_ARCHIVE|OUTPOSTS|GLACIER_IR|SNOW|EXPRESS_ONEZONE|FSX_OPENZFS|FSX_ONTAP',
+        public ?array $checksumAlgorithm,       // ['<string>', ...],
+        public ?string $checksumType,            // 'COMPOSITE|FULL_OBJECT',
+        public ?string $eTag,                    // '<string>',
+        public ?string $key,                     // '<string>',
+        public ?string $lastModified,            // <DateTime>,
+        public ?string $ownerDisplayName,        //   Owner' => ['DisplayName' => '<string>', 'ID' => '<string>'],
+        public ?string $ownerId,                 //   Owner' => ['DisplayName' => '<string>', 'ID' => '<string>'],
+        public ?bool $isRestoreStatusInProgress, // 'RestoreStatus' => ['IsRestoreInProgress' => true || false, 'RestoreExpiryDate'   =>  < DateTime > ,],
+        public ?\DateTime $restoreExpiryDate,
+        public ?int $size,           //       'Size'         =>  < integer > ,
+        public ?string $storageClass //  'StorageClass' => 'STANDARD|REDUCED_REDUNDANCY|GLACIER|STANDARD_IA|ONEZONE_IA|INTELLIGENT_TIERING|DEEP_ARCHIVE|OUTPOSTS|GLACIER_IR|SNOW|EXPRESS_ONEZONE|FSX_OPENZFS|FSX_ONTAP',
     ) {}
 
     public static function fromAwsFormat(array $object): self

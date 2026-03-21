@@ -37,9 +37,9 @@ final readonly class AwsS3ObjectsDeleteParams implements \JsonSerializable
 
         public string $bucket,                          // 'Bucket' => '<string>', // REQUIRED
         public array $deleteObjects,                    // 'Delete' => [  'Objects' => ... // REQUIRED
+        public ?bool $deleteQuiet,                      //                 'Delete' => [ 'Quiet' // REQUIRED
         public ?bool $bypassGovernanceRetention = null, // 'BypassGovernanceRetention' => true || false,
         public ?string $checksumAlgorithm = null,       // 'ChecksumAlgorithm' => 'CRC32|CRC32C|SHA1|SHA256|CRC64NVME',
-        public ?bool $deleteQuiet,                      //                 'Delete' => [ 'Quiet' // REQUIRED
         public ?string $expectedBucketOwner = null,     // 'ExpectedBucketOwner' => '<string>',
         public ?string $mFA = null,                     // 'MFA' => '<string>',
         public ?string $requestPayer = null,            // 'RequestPayer' => 'requester',

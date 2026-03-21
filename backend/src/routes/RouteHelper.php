@@ -2,9 +2,11 @@
 
 namespace App\Routes;
 use Slim\App;
+use Slim\Routing\RouteCollectorProxy;
+use Slim\Routing\RouteGroup;
 
 
 interface RouteHelper {
-    public static function addRoutesToApp(App $app);
+    public static function addRoutesTo(mixed $app);
     
 }

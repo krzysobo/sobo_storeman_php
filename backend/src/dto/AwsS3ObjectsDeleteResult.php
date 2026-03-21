@@ -31,9 +31,9 @@ final readonly class AwsS3ObjectsDeleteResult implements \JsonSerializable
                 'RequestCharged' => 'requester',
             ]
         */
-        public array $deleted,
-        public array $errors,
-        public string $requestCharged,
+        public ?array $deleted,
+        public ?array $errors,
+        public ?string $requestCharged,
     ) {}
 
     public static function fromAwsFormat(\Aws\Result  | array $object): self

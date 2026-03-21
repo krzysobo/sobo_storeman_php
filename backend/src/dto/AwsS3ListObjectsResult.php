@@ -10,18 +10,18 @@ final readonly class AwsS3ListObjectsResult implements \JsonSerializable
     use CloneWithProps;
 
     public function __construct(
-        public array $contents,               // returned items (objects) in the form of objects of AwsS3ObjectInfoShort
-        public string $continuationToken,     // ContinuationToken' => '<string>',
-        public string $delimiter,             // Delimiter' => '<string>',
-        public string $encodingType,          // EncodingType' => 'url',
-        public bool $isTruncated,             // IsTruncated' => true || false,
-        public int $keyCount,                 // KeyCount' => <integer>,
-        public int $maxKeys,                  // MaxKeys' => <integer>,
-        public string $name,                  // Name' => '<string>',
-        public string $nextContinuationToken, // NextContinuationToken' => '<string>',
-        public string $prefix,                // Prefix' => '<string>',
-        public string $requestCharged,        // RequestCharged' => 'requester',
-        public string $startAfter,            // StartAfter' => '<string>',
+        public ?array $contents,               // returned items (objects) in the form of objects of AwsS3ObjectInfoShort
+        public ?string $continuationToken,     // ContinuationToken' => '<string>',
+        public ?string $delimiter,             // Delimiter' => '<string>',
+        public ?string $encodingType,          // EncodingType' => 'url',
+        public ?bool $isTruncated,             // IsTruncated' => true || false,
+        public ?int $keyCount,                 // KeyCount' => <integer>,
+        public ?int $maxKeys,                  // MaxKeys' => <integer>,
+        public ?string $name,                  // Name' => '<string>',
+        public ?string $nextContinuationToken, // NextContinuationToken' => '<string>',
+        public ?string $prefix,                // Prefix' => '<string>',
+        public ?string $requestCharged,        // RequestCharged' => 'requester',
+        public ?string $startAfter,            // StartAfter' => '<string>',
         public ?array $commonPrefixes = null, // CommonPrefixes => [ ....... ['Prefix' => 'xxxx'] ...... ]
     ) {}
 

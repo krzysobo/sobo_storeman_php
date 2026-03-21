@@ -15,9 +15,9 @@ final readonly class AwsS3ObjectDeleteResult implements \JsonSerializable
                 'VersionId' => '<string>',
             ]
         */
-        public bool $deleteMarker,
-        public string $requestCharged,
-        public string $versionId,
+        public ?bool $deleteMarker,
+        public ?string $requestCharged,
+        public ?string $versionId,
     ) {}
 
     public static function fromAwsFormat(\Aws\Result  | array $object): self

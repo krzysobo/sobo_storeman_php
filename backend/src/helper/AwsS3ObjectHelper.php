@@ -11,13 +11,14 @@ use App\Dto\AwsS3ObjectGetResult;
 use App\Dto\AwsS3ObjectListParams;
 use App\Dto\AwsS3ObjectPutParams;
 use App\Dto\AwsS3ObjectPutResult;
+use App\Dto\AwsS3ObjectRenameParams;
 use App\Dto\AwsS3ObjectsDeleteParams;
 use App\Dto\AwsS3ObjectsDeleteResult;
 use App\Exceptions\FileNotFoundException;
 use App\Exceptions\InvalidDataException;
 use Aws\S3\S3Client;
 use Psr\Http\Message\StreamInterface;
-use resource; 
+use resource;
 
 class AwsS3ObjectHelper
 {
@@ -43,6 +44,25 @@ class AwsS3ObjectHelper
     ): AwsS3ObjectGetResult {
         $params = ($params === null) ? new AwsS3ObjectGetParams($bucketName, $objectKey)
             : $params->cloneWithNewBucketAndKey($bucketName, $objectKey);
+        $args = $params->toAwsFormat();
+
+        $result = $s3Client->getObject($args);
+
+        return AwsS3ObjectGetResult::fromAwsFormat($result);
+    }
+
+    public static function getObjectToFilePath(
+        S3Client $s3Client,
+        string $bucketName,
+        string $objectKey,
+        string $filePath,
+        ?AwsS3ObjectGetParams $params = null
+    ): AwsS3ObjectGetResult {
+        $dirName = dirname($filePath);
+        mkdir($dirName, 0777, recursive: true);
+
+        $params = ($params === null) ? new AwsS3ObjectGetParams($bucketName, $objectKey)
+            : $params->cloneWithNewBucketKeyAndSaveAs($bucketName, $objectKey, $filePath);
         $args = $params->toAwsFormat();
 
         $result = $s3Client->getObject($args);
@@ -102,6 +122,29 @@ class AwsS3ObjectHelper
         return AwsS3ObjectPutResult::fromAwsFormat($result);
     }
 
+    // NOT IMPLEMENTED YET, though added to documentation. Keeping, but not using.
+    public static function renameObject(
+        S3Client $s3Client,
+        string $bucketName,
+        string $objectKeySrc,
+        string $objectKeyDst,
+        ?AwsS3ObjectRenameParams $params = null
+    ): bool {
+        $renameSource = "{$bucketName}/{$objectKeySrc}";
+
+        $params = ($params === null) ? new AwsS3ObjectRenameParams(
+            $bucketName,
+            $objectKeyDst,
+            $renameSource) : $params->cloneWithNewBucketKeyRenameSource(
+            $bucketName,
+            $objectKeyDst,
+            $renameSource);
+
+        $s3Client->renameObject($params->toAwsFormat());
+
+        return true; // result of renameObject always returns []
+    }
+
     public static function copyObject(
         S3Client $s3Client,
         string $bucketNameSrc,
@@ -109,7 +152,7 @@ class AwsS3ObjectHelper
         string $bucketNameDst,
         string $objectKeyDst,
         ?AwsS3ObjectCopyParams $params = null
-    ) {
+    ): AwsS3ObjectCopyResult {
         $copySource = "{$bucketNameSrc}/{$objectKeySrc}";
 
         $params = ($params === null) ? new AwsS3ObjectCopyParams(

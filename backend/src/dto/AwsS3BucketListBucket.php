@@ -4,8 +4,8 @@ namespace App\Dto;
 final readonly class AwsS3BucketListBucket implements \JsonSerializable
 {
     public function __construct(
-        public string $bucketArn,       //  'BucketArn' => '<string>',
-        public string $bucketRegion,    //  'BucketRegion' => '<string>',
+        public ?string $bucketArn,       //  'BucketArn' => '<string>',
+        public ?string $bucketRegion,    //  'BucketRegion' => '<string>',
         public \DateTime $creationDate, //  'CreationDate' => <DateTime>,
         public string $name,            //  'Name' => '<string>',
 

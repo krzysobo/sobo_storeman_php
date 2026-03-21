@@ -67,7 +67,17 @@ final readonly class AwsS3ObjectGetParams implements \JsonSerializable
 
     public function cloneWithNewBucketAndKey(string $bucketName, string $objectKey)
     {
-        return self::cloneWithProps($this, ['bucket' => $bucketName, 'key' => $objectKey]);
+        return self::cloneWithProps($this, [
+            'bucket' => $bucketName,
+            'key'    => $objectKey]);
+    }
+    
+    public function cloneWithNewBucketKeyAndSaveAs(string $bucketName, string $objectKey, string $saveAs)
+    {
+        return self::cloneWithProps($this, [
+            'bucket' => $bucketName,
+            'key'    => $objectKey,
+            'saveAs' => $saveAs]);
     }
 
     public static function fromAwsFormat(array $object): self

@@ -12,6 +12,7 @@ class Settings
         '/aws/login',
         '/',
         '/play',
+        '/docs',
         '/openapi.json',
         // TODO - static asset prefixes
     ];

@@ -8,10 +8,14 @@ use Aws\S3\S3Client;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use Slim\Routing\RouteCollectorProxy;
+use Slim\Routing\RouteGroup;
 
-abstract class RouteHelperAwsS3
+abstract class RouteHelperAwsS3 implements RouteHelper
 {
-    abstract public static function addRoutesToApp(App $app);
+    public static function addRoutesTo(mixed $app) {
+
+    }
 
     /**
      * Summary of getS3ClientFromRequest
